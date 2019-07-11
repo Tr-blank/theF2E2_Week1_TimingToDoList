@@ -1,5 +1,7 @@
 # thef2e2_week1_timing-to-do-list
 
+vue cli 3、vue、pug
+
 ## branch 規範
 - master : 正式版
 - develop : 開發測試版
