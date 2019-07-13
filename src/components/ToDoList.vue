@@ -11,52 +11,24 @@
 import draggable from 'vuedraggable'
 
 export default {
-  name: 'HelloWorld',
+  name: 'ToDoList',
   components: {
     draggable
   },
-  props: {
-    msg: String
-  },
   data() {
     return {
-      records: [],
       list: []
     }
   },
+  props: {
+    listData: Array
+  },
   mounted() {
-    this.login()
+    this.list = this.listData
   },
   methods: {
-    login() {
-      this.$getGapiClient()
-        .then(gapi => {
-          const params = {
-            spreadsheetId: '1fLEQHVFlidjjbqeKwuhE5_H0L7JnAtKRtGUyKLE5kPI',
-            range: 'A1:H100',
-            valueRenderOption: 'FORMATTED_VALUE',
-            dateTimeRenderOption: 'FORMATTED_STRING'
-          }
-          gapi.client.sheets.spreadsheets.values.get(params)
-            .then(response => {
-              this.records = response.result.values
-              response.result.values.map((item, index) => {
-                if (index > 0) {
-                  const itemObject = {}
-                  item.map((value, n) => {
-                    const property = response.result.values[0][n]
-                    itemObject[property] = value
-                  })
-                  itemObject.order = index
-                  this.list.push(itemObject)
-                }
-              })
-            })
-            //最後要補寫當api讀取失敗時，直接塞入寫死的假資料到list裡
-        })
-    },
     checkMove() {
-      console.log(this.list)
+      // console.log('listData', this.listData)
       this.list.map((item, index) => {
         item.order = index
       })
@@ -67,7 +39,7 @@ export default {
 
 <style lang="stylus" scoped>
 .to-do-list
-  margin 40px 0
+  margin 10px 0
   &__item
     padding 10px
     background-color #fcfcfc

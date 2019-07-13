@@ -1,0 +1,84 @@
+<template lang="pug">
+  div.create
+    input.create_text(type='text' v-model="inputData.work_title")
+    button.create_button(type='submit' @click='createItem()')
+      font-awesome-icon.create_plusIcon(icon="plus")
+</template>
+
+<script>
+import axios from 'axios'
+
+const newItem = {
+  work_id: '',
+  work_title: '',
+  work_content: '',
+  remaining_time: 30,
+  order: '',
+  user_id: '',
+  user_name: '',
+  user_password: '',
+  user_Identity: ''
+}
+
+export default {
+  name: 'CreateToDoList',
+  data() {
+    return {
+      inputData: {
+        ...newItem
+      }
+    }
+  },
+  props: {
+    listData: {
+      type: Array
+    }
+  },
+  mounted() {
+    // console.log('listData', this.listData)
+  },
+  methods: {
+    createItem() {
+      this.inputData.work_id = this.listData.length + 1
+      this.inputData.order = this.listData.length + 1
+      console.log('create', this.inputData)
+      const api = `https://script.google.com/macros/s/AKfycby19dIv0Dq8KeeJQNPxWAAfcBEMZymvcOMNFh5W_5xG4v27hdIs/exec`
+      axios.post(api, {
+        ...this.inputData
+      }).then(res => {
+        console.log(res)
+        this.inputData = { ...newItem }
+      })
+        .catch(err => {
+          console.log(err)
+          this.listData.push({ ...this.inputData })
+          this.inputData = { ...newItem }
+          // console.log(this.listData)
+        })
+    }
+  }
+}
+</script>
+
+<style lang="stylus" scoped>
+.create
+  position relative
+  margin 10px 0
+  &_text
+    padding 10px
+    background-color #fcfcfc
+    border-radius 10px
+    border 0
+    width 100%
+  &_button
+    position absolute
+    top 0
+    right 0
+    background-color transparent
+    border 0
+    height 100%
+    display block
+    width 40px
+    color #333
+    cursor pointer
+</style>
