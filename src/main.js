@@ -2,12 +2,12 @@ import Vue from 'vue'
 import App from './App.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEllipsisV } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsisV, faPlay } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import VueGAPI from 'vue-gapi'
 
-library.add(faEllipsisV)
+library.add(faEllipsisV, faPlay)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
