@@ -14,6 +14,7 @@ const newItem = {
   work_content: '',
   remaining_time: 30,
   order: '',
+  status: true,
   user_id: '',
   user_name: '',
   user_password: '',
@@ -21,7 +22,7 @@ const newItem = {
 }
 
 export default {
-  name: 'CreateToDoList',
+  name: 'CreateToDoItem',
   data() {
     return {
       inputData: {
@@ -43,7 +44,7 @@ export default {
       this.inputData.order = this.listData.length + 1
       console.log('create', this.inputData)
       const api = `https://script.google.com/macros/s/AKfycby19dIv0Dq8KeeJQNPxWAAfcBEMZymvcOMNFh5W_5xG4v27hdIs/exec`
-      axios.post(api, {
+      axios.get(api, {
         ...this.inputData
       }).then(res => {
         console.log(res)
