@@ -148,6 +148,8 @@ export default {
     },
     doneToDoItem(index) {
       this.list[this.nowItem].status = false
+      this.nowItem++
+      this.nowItemInfo = this.list[this.nowItem]
     },
     deleteToDoItem(index) {
       this.$getGapiClient()
