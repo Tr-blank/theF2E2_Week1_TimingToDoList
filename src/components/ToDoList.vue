@@ -1,6 +1,6 @@
 <template lang="pug">
-  draggable.to-do-list(v-model="list" group="todolist" @start="drag=true" @end="drag=false" :move="checkMove")
-    div.to-do-list__item(v-for='item in list' :key='item.work_id')
+  draggable.to-do-list(v-model="listData" group="todolist" @start="drag=true" @end="drag=false" :move="checkMove")
+    div.to-do-list__item(v-for='item in listData' :key='item.work_id')
       div
         font-awesome-icon.to-do-list__item-dragIcon(icon="ellipsis-v")
         span.to-do-list__title {{item.work_title}}
@@ -23,13 +23,10 @@ export default {
   props: {
     listData: Array
   },
-  mounted() {
-    this.list = this.listData
-  },
   methods: {
     checkMove() {
       // console.log('listData', this.listData)
-      this.list.map((item, index) => {
+      this.listData.map((item, index) => {
         item.order = index
       })
     }

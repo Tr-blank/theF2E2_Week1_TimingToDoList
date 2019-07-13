@@ -8,10 +8,16 @@
       .list_title To Do
       ToDoList(:listData="list")
     div.timer-container
-      div 第一筆項目標題
-      div 第一筆項目內容
-      div 計時
-      div 狀態控制按鈕
+      div {{nowItem.work_title}}
+      div {{nowItem.work_content}}
+      div {{nowItem.remaining_time}}
+    div.item-button
+      div.item-button__done 
+        font-awesome-icon(icon="ban")
+        |Done
+      div.item-button__delete 
+        font-awesome-icon(icon="trash")
+        |Delete
 </template>
 
 <script>
@@ -71,8 +77,8 @@ export default {
   },
   data() {
     return {
-      records: [],
-      list: []
+      list: [],
+      nowItem: {}
     }
   },
   mounted() {
@@ -90,7 +96,6 @@ export default {
           }
           gapi.client.sheets.spreadsheets.values.get(params)
             .then(response => {
-              this.records = response.result.values
               response.result.values.map((item, index) => {
                 if (index > 0) {
                   const itemObject = {}
@@ -102,6 +107,7 @@ export default {
                   this.list.push(itemObject)
                 }
               })
+              this.nowItem = this.list[0]
               console.log('list', this.list)
             })
             .catch(function(error) {
@@ -109,6 +115,7 @@ export default {
                 // 服务器返回正常的异常对象
                 console.log(error.config)
                 this.list = testData
+                this.nowItem = this.list[0]
                 console.log(this.list)
               } else {
                 // 服务器发生未处理的异常
@@ -135,6 +142,7 @@ body
   color #333
   font-size 16px
   height 100vh
+  position relative
 .list
   width 30%
   background-color #ffd95c
@@ -148,4 +156,18 @@ body
   background-color #333
   color #fcfcfc
   padding 3%
+.item-button
+  position absolute
+  bottom 40px
+  right 0
+  &__done,
+  &__delete
+    padding 10px
+    font-size 20px
+    border 1px solid #fcfcfc
+    border-radius 10px 0 0 10px
+    color #fcfcfc
+    margin 10px 0
+    border-right 0
+    cursor pointer
 </style>
