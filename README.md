@@ -24,15 +24,5 @@ npm run dev
 npm run build
 ```
 
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### TODO
+- 有時新增的項目不會及時出現在清單中
