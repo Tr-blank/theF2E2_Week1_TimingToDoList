@@ -30,7 +30,7 @@
       )
         div
           font-awesome-icon.to-do-list__item-dragIcon(icon="ellipsis-v")
-          span.to-do-list__title {{item.work_title}}
+          span.to-do-list__done-title {{item.work_title}}
 
 </template>
 
@@ -103,7 +103,7 @@ export default {
       color #ffd95c
       transition color 0.35s ease .2s
     &--foucs
-      width: 110%
+      width: 105%
     &--foucs &-playIcon
       color #70afff
   &__done-item
@@ -118,10 +118,12 @@ export default {
     opacity .6
     width 100%
     transition width .2s ease
-    &__title
-      text-decoration line-through
     &--foucs
-      width: 110%
+      width: 105%
+  &__done-title
+    text-decoration line-through
+    font-size 18px
+    padding-left 10px
   &__title
     font-size 18px
     padding-left 10px
