@@ -1,24 +1,23 @@
 <template lang="pug">
   main(id='app')
-    div.list
+    .list
       .user
         img
         span user ID
       CreateToDoItem(:listData="list")
       ToDoList(:listData="list" :changeItem="changeNowItem")
-
-    div.timer-container
-      div {{nowItemInfo.work_title}}
-      div {{nowItemInfo.work_content}}
-      div {{nowItemInfo.remaining_time}}
-    div.item-button
-      div.item-button__done(v-if="!nowItemInfo.is_done" @click="doneToDoItem()")
+    .detail
+      Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
+      .detail__title {{nowItemInfo.work_title}}
+      .detail__content {{nowItemInfo.work_content}}
+    .item-button(v-if="!isTimerStart")
+      .item-button__done(v-if="!nowItemInfo.is_done" @click="doneToDoItem()")
         font-awesome-icon.item-button__done-icon(icon="check")
         |Done
-      div.item-button__done(v-else @click="restartToDoItem()")
+      .item-button__done(v-else @click="restartToDoItem()")
         font-awesome-icon.item-button__done-icon(icon="power-off")
         |Restart
-      div.item-button__delete(@click="deleteToDoItem()")
+      .item-button__delete(@click="deleteToDoItem()")
         font-awesome-icon.item-button__delete-icon(icon="trash")
         |Delete
 </template>
@@ -26,7 +25,7 @@
 <script>
 import CreateToDoItem from './components/CreateToDoItem.vue'
 import ToDoList from './components/ToDoList.vue'
-// import DeleteToDoItem from './components/DeleteToDoItem.vue'
+import Timer from './components/Timer.vue'
 
 const testData = [{
   order: 1,
@@ -81,14 +80,16 @@ export default {
   name: 'app',
   components: {
     CreateToDoItem,
-    ToDoList
-    // DeleteToDoItem
+    ToDoList,
+    Timer
   },
   data() {
     return {
       list: [],
       nowItem: 0,
-      nowItemInfo: {}
+      nowItemInfo: {},
+      timer: null,
+      isTimerStart: false
     }
   },
   mounted() {
@@ -116,12 +117,15 @@ export default {
                     itemObject[property] = value
                   })
                   itemObject.work_id = Number(itemObject.work_id)
+                  itemObject.remaining_time = Number(itemObject.remaining_time)
                   itemObject.is_done = itemObject.is_done === 'TRUE'
                   itemObject.order = Number(itemObject.order)
                   itemObject.sheetsOrder = index
                   this.list.push(itemObject)
                 }
               })
+              this.nowItem = this.list.filter(item => !item.is_done)[0].work_id
+              this.nowItemInfo = this.list.filter(item => item.work_id === this.nowItem)[0]
               console.log('list', this.list)
             })
             .catch(function(error) {
@@ -129,6 +133,8 @@ export default {
                 // 服务器返回正常的异常对象
                 console.log(error.config)
                 this.list = testData
+                this.nowItem = this.list[0].work_id
+                this.nowItemInfo = this.list[0]
                 console.log(this.list)
               } else {
                 // 服务器发生未处理的异常
@@ -140,8 +146,6 @@ export default {
     changeNowItem(id) {
       this.nowItem = id
       this.nowItemInfo = this.list.filter(item => item.work_id === id)[0]
-      console.log(this.nowItem)
-      console.log(this.nowItemInfo)
     },
     restartToDoItem() {
       this.list.filter(item => item.work_id === this.nowItem)[0].is_done = false
@@ -180,6 +184,19 @@ export default {
               this.list.splice(listOrder, 1)
             })
         })
+    },
+    timerStart() {
+      this.isTimerStart = true
+      this.timer = setInterval(() => {
+        this.nowItemInfo.remaining_time > 0 ? this.nowItemInfo.remaining_time-- : this.timerPause()
+      }, 1000)
+    },
+    timerPause() {
+      this.isTimerStart = false
+      clearInterval(this.timer)
+    },
+    timerStepBackward() {
+      this.nowItemInfo.remaining_time = 1800
     }
   }
 }
@@ -201,18 +218,25 @@ body
   height 100vh
   position relative
 .list
-  width 30%
-  background-color #ffd95c
+  width 40%
+  background-color #e6c65c
   padding 3%
   &_title
     margin 40px 0 10px
     font-size 20px
     font-weight bold
-.timer-container
-  width 70%
+.detail
+  width 60%
   background-color #333
   color #fcfcfc
   padding 3%
+  text-align center
+  &__title
+    font-size 40px
+  &__content
+    margin 30px 0
+    font-size 20px
+    color #bdbdbd
 .item-button
   position absolute
   bottom 40px
