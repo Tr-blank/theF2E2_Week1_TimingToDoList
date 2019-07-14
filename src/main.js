@@ -2,12 +2,12 @@ import Vue from 'vue'
 import App from './App.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEllipsisV, faPlay, faPlus, faTrash, faCheck, faPowerOff } from '@fortawesome/free-solid-svg-icons'
+import { faEllipsisV, faPlay, faPlus, faPause, faUndoAlt, faTrash, faCheck, faPowerOff } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import VueGAPI from 'vue-gapi'
 
-library.add(faEllipsisV, faPlay, faPlus, faTrash, faCheck, faPowerOff)
+library.add(faEllipsisV, faPlay, faPlus, faPause, faUndoAlt, faTrash, faCheck, faPowerOff)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
