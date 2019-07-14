@@ -5,14 +5,14 @@
         img
         span user ID
       CreateToDoItem(:listData="list")
-      .list_title To Do
       ToDoList(:listData="list" :changeItem="changeNowItem")
+
     div.timer-container
       div {{nowItemInfo.work_title}}
       div {{nowItemInfo.work_content}}
       div {{nowItemInfo.remaining_time}}
     div.item-button
-      div.item-button__done(v-if="nowItemInfo.status" @click="doneToDoItem()")
+      div.item-button__done(v-if="!nowItemInfo.is_done" @click="doneToDoItem()")
         font-awesome-icon.item-button__done-icon(icon="check")
         |Done
       div.item-button__done(v-else @click="restartToDoItem()")
@@ -30,50 +30,50 @@ import ToDoList from './components/ToDoList.vue'
 
 const testData = [{
   order: 1,
-  status: true,
+  is_done: false,
   remaining_time: '30',
   user_Identity: 'test',
   user_id: '1',
   user_name: 'Tomato man',
   user_password: '',
   work_content: '手臂左右伸展',
-  work_id: '1',
+  work_id: 1,
   work_title: '熱身'
 },
 {
   order: 1,
-  status: true,
+  is_done: false,
   remaining_time: '30',
   user_Identity: 'test',
   user_id: '1',
   user_name: 'Tomato man',
   user_password: '',
   work_content: '手臂左右伸展',
-  work_id: '1',
+  work_id: 2,
   work_title: '熱身'
 },
 {
   order: 1,
-  status: true,
+  is_done: false,
   remaining_time: '30',
   user_Identity: 'test',
   user_id: '1',
   user_name: 'Tomato man',
   user_password: '',
   work_content: '手臂左右伸展',
-  work_id: '1',
+  work_id: 3,
   work_title: '熱身'
 },
 {
   order: 1,
-  status: true,
+  is_done: false,
   remaining_time: '30',
   user_Identity: 'test',
   user_id: '1',
   user_name: 'Tomato man',
   user_password: '',
   work_content: '手臂左右伸展',
-  work_id: '1',
+  work_id: 4,
   work_title: '熱身'
 }]
 
@@ -87,7 +87,7 @@ export default {
   data() {
     return {
       list: [],
-      nowItem: 2,
+      nowItem: 0,
       nowItemInfo: {}
     }
   },
@@ -101,7 +101,7 @@ export default {
         .then(gapi => {
           const params = {
             spreadsheetId: '1fLEQHVFlidjjbqeKwuhE5_H0L7JnAtKRtGUyKLE5kPI',
-            range: 'A1:J100',
+            range: 'A1:K100',
             valueRenderOption: 'FORMATTED_VALUE',
             dateTimeRenderOption: 'FORMATTED_STRING'
           }
@@ -115,13 +115,13 @@ export default {
                     const property = response.result.values[0][n]
                     itemObject[property] = value
                   })
-                  itemObject.status = itemObject.status === 'ture'
-                  itemObject.order = index
+                  itemObject.work_id = Number(itemObject.work_id)
+                  itemObject.is_done = itemObject.is_done === 'TRUE'
+                  itemObject.order = Number(itemObject.order)
+                  itemObject.sheetsOrder = index
                   this.list.push(itemObject)
                 }
               })
-              this.nowItem = 2
-              this.nowItemInfo = this.list[0]
               console.log('list', this.list)
             })
             .catch(function(error) {
@@ -129,8 +129,6 @@ export default {
                 // 服务器返回正常的异常对象
                 console.log(error.config)
                 this.list = testData
-                this.nowItem = this.list[0]
-                this.nowItemInfo = this.list[0]
                 console.log(this.list)
               } else {
                 // 服务器发生未处理的异常
@@ -139,36 +137,47 @@ export default {
             })
         })
     },
-    changeNowItem(index) {
-      this.nowItem = index
-      this.nowItemInfo = this.list[index]
+    changeNowItem(id) {
+      this.nowItem = id
+      this.nowItemInfo = this.list.filter(item => item.work_id === id)[0]
+      console.log(this.nowItem)
+      console.log(this.nowItemInfo)
     },
     restartToDoItem() {
-      this.list[this.nowItem].status = true
+      this.list.filter(item => item.work_id === this.nowItem)[0].is_done = false
     },
     doneToDoItem(index) {
-      this.list[this.nowItem].status = false
-      this.nowItem++
-      this.nowItemInfo = this.list[this.nowItem]
+      this.list.filter(item => item.work_id === this.nowItem)[0].is_done = true
     },
     deleteToDoItem(index) {
       this.$getGapiClient()
         .then(gapi => {
-          const rowNumber = this.nowItem + 2
-          console.log(`A${rowNumber}:I${rowNumber}`)
           const params = {
             spreadsheetId: '1fLEQHVFlidjjbqeKwuhE5_H0L7JnAtKRtGUyKLE5kPI',
-            range: `A${rowNumber}:J${rowNumber}`,
-            valueRenderOption: 'FORMATTED_VALUE',
-            dateTimeRenderOption: 'FORMATTED_STRING'
+            resource: {
+              requests: [
+                {
+                  deleteDimension: {
+                    range: {
+                      sheetId: 0,
+                      dimension: 'ROWS',
+                      startIndex: this.nowItemInfo.sheetsOrder,
+                      endIndex: this.nowItemInfo.sheetsOrder + 1
+                    }
+                  }
+                }
+              ]
+            }
           }
-          gapi.client.sheets.spreadsheets.values.clear(params)
+          gapi.client.sheets.spreadsheets.batchUpdate(params)
             .then(res => {
-              console.log('delete', `A${rowNumber}:I${rowNumber}`)
+              console.log(`刪除第${this.nowItemInfo.sheetsOrder}列成功`)
             })
             .catch(error => {
               console.log(error)
-              this.list.splice(this.nowItem, 1)
+              const listOrder = this.list.indexOf(this.nowItemInfo)
+              console.log(listOrder)
+              this.list.splice(listOrder, 1)
             })
         })
     }
