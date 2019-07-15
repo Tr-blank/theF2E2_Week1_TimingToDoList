@@ -19,7 +19,7 @@
           font-awesome-icon.to-do-list__item-dragIcon(icon="ellipsis-v")
           span.to-do-list__title {{item.work_title}}
         font-awesome-icon.to-do-list__item-playIcon(icon="play")
-    .list_title Done
+    .list__title Done
     div.to-do-list
       div(
         :class="{ 'to-do-list__done-item--foucs': nowNumber === item.work_id, 'to-do-list__done-item': true}"
@@ -84,6 +84,8 @@ export default {
       // console.log()
       if (this.isMobile) {
         this.page('timer')
+      }else{
+        this.page('todolist')
       }
     }
   }
