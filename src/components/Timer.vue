@@ -1,6 +1,17 @@
 <template lang="pug">
   div(:class="{ 'timer--start' : isStart, 'timer--rest' : isStart && time > 1500 }")
     div.timer__container
+      div.timer__progress
+        svg.timer__progress-svg(xmlns="http://www.w3.org/2000/svg" viewBox="24 24 48 48")
+          circle.timer__progress-circle(
+            fill="transparent"
+            cx="48"
+            cy="48"
+            r="22"
+            stroke-width="1"
+            :stroke-dasharray="perimeter"
+            :stroke-dashoffset="progress"
+          )
       div.timer__content
         div.timer__control
           font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!isStart")
@@ -15,6 +26,7 @@ export default {
   name: 'Timer',
   data() {
     return {
+      perimeter: 2 * Math.PI * 22
     }
   },
   props: {
@@ -46,6 +58,9 @@ export default {
         timeValue += sec
       }
       return timeValue
+    },
+    progress() {
+      return (this.time / 1800) * this.perimeter
     }
   },
   mounted() {
@@ -77,6 +92,29 @@ export default {
     transform scale(1.3)
     opacity 0
 .timer
+  &__progress
+    height 320px
+    width 320px
+    color #e2d9b9
+    position absolute
+    top -10px
+    left -10px
+    &-svg
+      width 100%
+      height 100%
+      margin auto
+      position absolute
+      top 0
+      bottom 0
+      left 0
+      right 0
+      z-index 0
+      overflow hidden
+      transform rotate(-90deg)
+    &-circle
+      stroke currentColor
+      z-index 2
+      transition all .6s ease-in-out
   &__container
     margin 60px auto
     border-radius 50%
@@ -89,8 +127,8 @@ export default {
     position absolute
     top 8px
     left 8px
-    width 284px
-    height 284px
+    width 286px
+    height 286px
     display flex
     justify-content space-evenly
     align-items center
@@ -111,12 +149,16 @@ export default {
       border 4px solid #b96a47
       border-radius 50%
       animation rest_time 1s ease-out infinite
+  &--start &__progress
+    color #e6c65c
   &--start &__content
     background-color #e6c65c
   &--rest &__container
     background-color #4a6741
     &::before
       border-color #4a6741
+  &--rest &__progress
+    color #72a068
   &--rest &__content
     background-color #72a068
   &__time
@@ -137,13 +179,14 @@ export default {
   &__control
     font-size 80px
     &-icon
+      display block
       margin 10px
       border-radius 50%
       width 80px
       height 80px
       cursor pointer
     &-play
-      padding 11px 4px 11px 7px
+      padding 10px 0px 10px 20px
     &-pause
       padding 10px
     &-step-backward
@@ -152,5 +195,5 @@ export default {
       color #616161
       cursor pointer
       position absolute
-      bottom 30px
+      bottom 40px
 </style>
