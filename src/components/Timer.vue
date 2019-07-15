@@ -1,6 +1,23 @@
 <template lang="pug">
   div(:class="{ 'timer--start' : isStart, 'timer--rest' : isStart && time > 1500 }")
     div.timer__container
+
+      div.timer__progress(
+        role="progressbar"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="55"
+      )
+        svg.timer__progress-svg(xmlns="http://www.w3.org/2000/svg" viewBox="24 24 48 48")
+          circle.timer__progress-circle(
+            fill="transparent"
+            cx="48"
+            cy="48"
+            r="22"
+            stroke-width="3"
+            stroke-dasharray="125.664"
+            stroke-dashoffset="56.548667764616276px"
+          )
       div.timer__content
         div.timer__control
           font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!isStart")
@@ -77,6 +94,30 @@ export default {
     transform scale(1.3)
     opacity 0
 .timer
+  &__progress
+    height 320px
+    width 320px
+    color rgb(114, 160, 103)
+    caret-color rgb(114, 160, 103)
+    position absolute
+    top -10px
+    left -10px
+    &-svg
+      width 100%
+      height 100%
+      margin auto
+      position absolute
+      top 0
+      bottom 0
+      left 0
+      right 0
+      z-index 0
+      overflow hidden
+      transform rotate(-90deg)
+    &-circle
+      stroke currentColor
+      z-index 2
+      transition all .6s ease-in-out;
   &__container
     margin 60px auto
     border-radius 50%
@@ -87,10 +128,10 @@ export default {
     background-color #676767
   &__content
     position absolute
-    top 8px
-    left 8px
-    width 284px
-    height 284px
+    top 5px
+    left 5px
+    width 290px
+    height 290px
     display flex
     justify-content space-evenly
     align-items center
@@ -137,13 +178,14 @@ export default {
   &__control
     font-size 80px
     &-icon
+      display block
       margin 10px
       border-radius 50%
       width 80px
       height 80px
       cursor pointer
     &-play
-      padding 11px 4px 11px 7px
+      padding 10px 0px 10px 20px
     &-pause
       padding 10px
     &-step-backward
@@ -152,5 +194,5 @@ export default {
       color #616161
       cursor pointer
       position absolute
-      bottom 30px
+      bottom 40px
 </style>

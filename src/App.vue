@@ -1,16 +1,24 @@
 <template lang="pug">
   main(id='app')
-    .list
-      .user
-        img
-        span user ID
-      CreateToDoItem(:listData="list")
-      ToDoList(:listData="list" :changeItem="changeNowItem")
-    .detail
-      Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
-      .detail__title {{nowItemInfo.work_title}}
-      .detail__content {{nowItemInfo.work_content}}
-    .item-button(v-if="!isTimerStart")
+    nav
+      div
+        font-awesome-icon.nav__icon.nav__icon-user(icon="user-circle")
+        |user
+      div.nav__list
+        font-awesome-icon.nav__icon(icon="list-ul")
+        font-awesome-icon.nav__icon(icon="chart-bar")
+        font-awesome-icon.nav__icon(icon="cog")
+    .main-container
+      .list(v-if="nowPage === 'todolist'")
+        .list__container
+          CreateToDoItem(:listData="list")
+          ToDoList(:listData="list" :changeItem="changeNowItem" :isMobile="isMobileSize" :page="changePage")
+      .detail(v-if="!isMobileSize || nowPage === 'timer'")
+        .detail__container
+          Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
+          .detail__title {{nowItemInfo.work_title}}
+          .detail__content {{nowItemInfo.work_content}}
+    .item-button(v-if="!isTimerStart && !isMobileSize")
       .item-button__done(v-if="!nowItemInfo.is_done" @click="doneToDoItem()")
         font-awesome-icon.item-button__done-icon(icon="check")
         |Done
@@ -27,54 +35,7 @@ import CreateToDoItem from './components/CreateToDoItem.vue'
 import ToDoList from './components/ToDoList.vue'
 import Timer from './components/Timer.vue'
 
-const testData = [{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 1,
-  work_title: '熱身'
-},
-{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 2,
-  work_title: '熱身'
-},
-{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 3,
-  work_title: '熱身'
-},
-{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 4,
-  work_title: '熱身'
-}]
+import { testData } from './datas/to-do-list'
 
 export default {
   name: 'app',
@@ -85,6 +46,8 @@ export default {
   },
   data() {
     return {
+      fullWidth: 0,
+      nowPage: 'todolist',
       list: [],
       nowItem: 0,
       nowItemInfo: {},
@@ -95,8 +58,25 @@ export default {
   mounted() {
     this.login()
     this.list = testData
+
+    this.fullWidth = window.innerWidth
+    window.onresize = () => {
+      this.fullWidth = window.innerWidth
+      if (!this.isMobileSize && this.nowPage === 'timer') {
+        this.changePage('todolist')
+      }
+    }
+  },
+  computed: {
+    isMobileSize() {
+      return this.fullWidth < 1024
+    }
   },
   methods: {
+    changePage(page) {
+      this.nowPage = page
+      console.log(this.nowPage)
+    },
     login() {
       this.$getGapiClient()
         .then(gapi => {
@@ -212,25 +192,51 @@ body
   font-family 'Avenir', Microsoft JhengHei UI, Helvetica, Arial, sans-serif
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
-  display flex
   color #333
   font-size 16px
   height 100vh
   position relative
+nav
+  position fixed
+  width 100%
+  top 0
+  left 0
+  display flex
+  justify-content space-between
+  padding 20px 20px 20px 80px
+  font-size 30px
+.nav
+  &__list
+    color #fcfcfc
+  &__list &__icon
+    cursor pointer
+  &__icon
+    margin 0 10px
+    &-user
+      margin-left 0
+.main-container
+  display flex
+  height 100vh
 .list
-  width 40%
+  width 35%
   background-color #e6c65c
-  padding 3%
-  &_title
+  &__container
+    padding 80px
+    height 100%
+    overflow hidden auto
+  &__title
     margin 40px 0 10px
     font-size 20px
     font-weight bold
 .detail
-  width 60%
+  width 65%
   background-color #333
   color #fcfcfc
-  padding 3%
   text-align center
+  &__container
+    padding 60px
+    height 100%
+    overflow hidden auto
   &__title
     font-size 40px
   &__content
@@ -260,4 +266,16 @@ body
       margin-right 10px
     &:hover
       left 30%
+@media screen and (max-width: 1440px)
+  nav
+    padding-left 40px
+  .list__container
+    padding 80px 40px
+@media screen and (max-width: 1024px)
+  .list,
+  .detail
+    width 100%
+  .detail__container
+    padding: 40px 10px;
+
 </style>

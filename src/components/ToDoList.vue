@@ -1,6 +1,6 @@
 <template lang="pug">
   div
-    .list_title To Do
+    .list__title To Do
     draggable.to-do-list(
       v-model="listData"
       group="todolist"
@@ -56,6 +56,14 @@ export default {
     changeItem: {
       type: Function,
       required: true
+    },
+    isMobile: {
+      type: Boolean,
+      required: true
+    },
+    page: {
+      type: Function,
+      required: true
     }
   },
   created() {
@@ -72,6 +80,11 @@ export default {
     clickItem(index, event) {
       this.nowNumber = index
       this.changeItem(index)
+
+      // console.log()
+      if (this.isMobile) {
+        this.page('timer')
+      }
     }
   }
 }
