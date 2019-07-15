@@ -1,6 +1,6 @@
 <template lang="pug">
   div.create
-    input.create_text(type='text' v-model="inputData.work_title")
+    input.create_text(type='text' v-model="inputData.work_title" placeholder="新增代辦事項 ...")
     button.create_button(type='submit' @click='createItem()')
       font-awesome-icon.create_plusIcon(icon="plus")
 </template>
@@ -33,6 +33,9 @@ export default {
   props: {
     listData: {
       type: Array
+    },
+    loading: {
+      type: Boolean
     }
   },
   mounted() {
@@ -40,6 +43,7 @@ export default {
   },
   methods: {
     createItem() {
+      this.loading = true
       this.inputData.work_id = this.listData.length + 1
       this.inputData.order = this.listData.length + 1
       console.log('create', this.inputData)
@@ -49,12 +53,13 @@ export default {
       }).then(res => {
         console.log(res)
         this.inputData = { ...newItem }
+        this.loading = false
       })
         .catch(err => {
           console.log(err)
           this.listData.push({ ...this.inputData })
           this.inputData = { ...newItem }
-          // console.log(this.listData)
+          this.loading = false
         })
     }
   }
@@ -66,11 +71,13 @@ export default {
   position relative
   margin 10px 0
   &_text
-    padding 10px
     background-color #fcfcfc
-    border-radius 10px
+    border-radius 0.625rem
     border 0
     width 100%
+    padding 10px 20px
+    font-size 18px
+    font-family 'Avenir', Microsoft JhengHei UI, Helvetica, Arial, sans-serif
   &_button
     position absolute
     top 0

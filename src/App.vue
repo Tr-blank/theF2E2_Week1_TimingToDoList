@@ -1,25 +1,37 @@
 <template lang="pug">
   main(id='app')
-    .list
-      .user
-        img
-        span user ID
-      CreateToDoItem(:listData="list")
-      ToDoList(:listData="list" :changeItem="changeNowItem")
-    .detail
-      Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
-      .detail__title {{nowItemInfo.work_title}}
-      .detail__content {{nowItemInfo.work_content}}
-    .item-button(v-if="!isTimerStart")
-      .item-button__done(v-if="!nowItemInfo.is_done" @click="doneToDoItem()")
-        font-awesome-icon.item-button__done-icon(icon="check")
-        |Done
-      .item-button__done(v-else @click="restartToDoItem()")
-        font-awesome-icon.item-button__done-icon(icon="power-off")
-        |Restart
-      .item-button__delete(@click="deleteToDoItem()")
-        font-awesome-icon.item-button__delete-icon(icon="trash")
-        |Delete
+    nav(:class="{ 'nav--timer-page': nowPage === 'timer' && isMobileSize }")
+      div(v-if="nowPage === 'todolist'")
+        font-awesome-icon.nav__icon.nav__icon-user(icon="user-circle")
+        |user
+      div(v-else)
+        font-awesome-icon.nav__icon.nav__icon-goBack(icon="angle-left" @click="changePage('todolist')")
+      div.nav__list
+        font-awesome-icon.nav__icon(icon="list-ul")
+        font-awesome-icon.nav__icon(icon="chart-bar")
+        font-awesome-icon.nav__icon(icon="cog")
+    .main-container
+      .list(v-if="nowPage === 'todolist'")
+        .list__container
+          CreateToDoItem(:listData="list" :loading="isLoading")
+          ToDoList(:listData="list" :changeItem="changeNowItem" :isMobile="isMobileSize" :page="changePage")
+      .detail(v-if="!isMobileSize || nowPage === 'timer'")
+        .detail__container
+          Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
+          .detail__title {{nowItemInfo.work_title}}
+          .detail__content {{nowItemInfo.work_content}}
+          .item-button(v-if="showItemButton")
+            .item-button__done(v-if="!nowItemInfo.is_done" @click="doneToDoItem()")
+              font-awesome-icon.item-button__done-icon(icon="check")
+              |Done
+            .item-button__done(v-else @click="restartToDoItem()")
+              font-awesome-icon.item-button__done-icon(icon="power-off")
+              |Restart
+            .item-button__delete(@click="deleteToDoItem()")
+              font-awesome-icon.item-button__delete-icon(icon="trash")
+              |Delete
+    .loading(v-if="isLoading")
+      .loading-container Loading ...
 </template>
 
 <script>
@@ -27,54 +39,7 @@ import CreateToDoItem from './components/CreateToDoItem.vue'
 import ToDoList from './components/ToDoList.vue'
 import Timer from './components/Timer.vue'
 
-const testData = [{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 1,
-  work_title: '熱身'
-},
-{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 2,
-  work_title: '熱身'
-},
-{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 3,
-  work_title: '熱身'
-},
-{
-  order: 1,
-  is_done: false,
-  remaining_time: '30',
-  user_Identity: 'test',
-  user_id: '1',
-  user_name: 'Tomato man',
-  user_password: '',
-  work_content: '手臂左右伸展',
-  work_id: 4,
-  work_title: '熱身'
-}]
+import { testData } from './datas/to-do-list'
 
 export default {
   name: 'app',
@@ -85,19 +50,47 @@ export default {
   },
   data() {
     return {
+      fullWidth: 0,
+      nowPage: 'todolist',
       list: [],
       nowItem: 0,
       nowItemInfo: {},
       timer: null,
-      isTimerStart: false
+      isTimerStart: false,
+      isLoading: false
     }
   },
   mounted() {
     this.login()
     this.list = testData
+
+    this.fullWidth = window.innerWidth
+    window.onresize = () => {
+      this.fullWidth = window.innerWidth
+      if (!this.isMobileSize && this.nowPage === 'timer') {
+        this.changePage('todolist')
+      }
+    }
+  },
+  computed: {
+    isMobileSize() {
+      return this.fullWidth < 768
+    },
+    showItemButton() {
+      if (this.isMobileSize) {
+        return !this.isTimerStart && this.nowPage === 'timer'
+      } else {
+        return !this.isTimerStart && this.nowPage === 'todolist'
+      }
+    }
   },
   methods: {
+    changePage(page) {
+      this.timerPause()
+      this.nowPage = page
+    },
     login() {
+      this.isLoading = true
       this.$getGapiClient()
         .then(gapi => {
           const params = {
@@ -127,6 +120,7 @@ export default {
               this.nowItem = this.list.filter(item => !item.is_done)[0].work_id
               this.nowItemInfo = this.list.filter(item => item.work_id === this.nowItem)[0]
               console.log('list', this.list)
+              this.isLoading = false
             })
             .catch(function(error) {
               if (error.response) {
@@ -140,6 +134,7 @@ export default {
                 // 服务器发生未处理的异常
                 console.log('Error', error.message)
               }
+              this.isLoading = false
             })
         })
     },
@@ -154,6 +149,7 @@ export default {
       this.list.filter(item => item.work_id === this.nowItem)[0].is_done = true
     },
     deleteToDoItem(index) {
+      this.isLoading = true
       this.$getGapiClient()
         .then(gapi => {
           const params = {
@@ -176,12 +172,14 @@ export default {
           gapi.client.sheets.spreadsheets.batchUpdate(params)
             .then(res => {
               console.log(`刪除第${this.nowItemInfo.sheetsOrder}列成功`)
+              this.isLoading = false
             })
             .catch(error => {
               console.log(error)
               const listOrder = this.list.indexOf(this.nowItemInfo)
               console.log(listOrder)
               this.list.splice(listOrder, 1)
+              this.isLoading = false
             })
         })
     },
@@ -212,25 +210,54 @@ body
   font-family 'Avenir', Microsoft JhengHei UI, Helvetica, Arial, sans-serif
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
-  display flex
   color #333
   font-size 16px
   height 100vh
   position relative
+nav
+  position fixed
+  width 100%
+  top 0
+  left 0
+  display flex
+  justify-content space-between
+  padding 20px 20px 20px 80px
+  font-size 30px
+  color #333
+  z-index 10
+.nav
+  &__list
+    color #fcfcfc
+  &__list &__icon
+    cursor pointer
+  &__icon
+    margin 0 0 0 20px
+    &-user,
+    &-goBack
+      margin 0 10px 0 0
+.main-container
+  display flex
+  height 100vh
 .list
-  width 40%
+  width 35%
   background-color #e6c65c
-  padding 3%
-  &_title
+  &__container
+    padding 80px
+    height 100%
+    overflow hidden auto
+  &__title
     margin 40px 0 10px
     font-size 20px
     font-weight bold
 .detail
-  width 60%
+  width 65%
   background-color #333
   color #fcfcfc
-  padding 3%
   text-align center
+  &__container
+    padding 60px
+    height 100%
+    overflow hidden auto
   &__title
     font-size 40px
   &__content
@@ -243,6 +270,7 @@ body
   right 0
   width 200px
   overflow hidden
+  text-align left
   &__done,
   &__delete
     padding 10px
@@ -260,4 +288,66 @@ body
       margin-right 10px
     &:hover
       left 30%
+.loading
+  position absolute
+  z-index 100
+  width 100%
+  top 0
+  left 0
+  height 100%
+  display flex
+  justify-content center
+  align-items center
+  background-color rgba(0,0,0,.2)
+  &-container
+    padding 20px 40px
+    background-color #fcfcfc
+    border-radius 10px
+    font-weight bold
+@media screen and (max-width: 1440px)
+  nav
+    padding 20px 40px
+  .list__container
+    padding 80px 40px
+@media screen and (max-width: 1024px)
+  nav
+    padding 20px
+  .list
+    width 40%
+  .detail
+    width 60%
+  .list__container
+    padding 80px 20px
+@media screen and (max-width: 768px)
+  nav
+    background-color #e6c65c
+  .nav
+    &__list
+      color #333
+    &--timer-page
+      background-color transparent
+      color #fcfcfc
+      padding 20px
+    &--timer-page &__list
+      color #fcfcfc
+  .list,
+  .detail
+    width 100%
+  .detail
+    &__container
+      padding 40px
+    &__title
+      font-size 30px
+  .item-button
+    position relative
+    bottom 0
+    width 100%
+    text-align center
+    &__done,
+    &__delete
+      left 0
+      width 80%
+      margin 10px auto
+      border 0.0625rem solid #fcfcfc
+      border-radius 0.625rem
 </style>
