@@ -1,10 +1,31 @@
+export const musicData = [{
+  'work_id': 1,
+  'work_title': 'Ocean by KV',
+  'work_content': 'Ocean by KV https://soundcloud.com/kvmusicprod, Creative Commons — Attribution 3.0 Unported  — CC BY 3.0, Free Download / Stream: http://bit.ly/2OCvpHU,   Music promoted by Audio Library https://youtu.be/a8ctDtA7OK8',
+  'remaining_time': 172,
+  'order': 1,
+  'is_done': false,
+  'completion': '',
+  'sheetsOrder': 1
+},
+{
+  'work_id': 2,
+  'work_title': 'Oxygen — Scandinavianz [Audio Library Release]',
+  'work_content': 'Track: Oxygen — Scandinavianz [Audio Library Release],  Music provided by Audio Library Plus,  Watch: https://youtu.be/w-FQO6RXTjs,  Free Download / Stream: https://alplus.io/Oxygen',
+  'remaining_time': 214,
+  'order': 1,
+  'is_done': false,
+  'completion': '',
+  'sheetsOrder': 1
+}]
+
 export const testData = [{
   'work_id': 1,
   'work_title': '每週慢跑30分',
   'work_content': '掌握呼吸節奏，向前邁進',
   'remaining_time': 1800,
   'order': 6,
-  'is_done': true,
+  'is_done': false,
   'completion': '2019/07/14,2019/07/14',
   'user_id': '1',
   'user_name': 'Tomato man',
@@ -32,7 +53,7 @@ export const testData = [{
   'work_content': '睜開眼睛，看向未知的世界',
   'remaining_time': 1800,
   'order': 2,
-  'is_done': false,
+  'is_done': true,
   'completion': '',
   'user_id': '1',
   'user_name': 'Tomato man',
@@ -46,7 +67,7 @@ export const testData = [{
   'work_content': '用心取代鏡頭，記錄下感受世界中的美好',
   'remaining_time': 1500,
   'order': 3,
-  'is_done': false,
+  'is_done': true,
   'completion': '',
   'user_id': '1',
   'user_name': 'Tomato man',
@@ -56,7 +77,7 @@ export const testData = [{
 },
 {
   'work_id': 5,
-  'work_title': '\b與朋友聊聊彼此近況',
+  'work_title': '與朋友聊聊彼此近況',
   'work_content': '關係是需要持續維持才會永不消逝',
   'remaining_time': 1800,
   'order': 4,

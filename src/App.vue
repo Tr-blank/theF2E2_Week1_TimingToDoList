@@ -1,21 +1,38 @@
 <template lang="pug">
   main(id='app')
-    nav(:class="{ 'nav--timer-page': nowPage === 'timer' && isMobileSize }")
+    nav(:class="{ 'nav--timer-page': nowPage === 'analytics' || nowPage === 'timer' && isMobileSize }")
       div(v-if="nowPage === 'todolist'")
         font-awesome-icon.nav__icon.nav__icon-user(icon="user-circle")
         |user
       div(v-else)
         font-awesome-icon.nav__icon.nav__icon-goBack(icon="angle-left" @click="changePage('todolist')")
       div.nav__list
-        font-awesome-icon.nav__icon(icon="list-ul")
-        font-awesome-icon.nav__icon(icon="chart-bar")
-        font-awesome-icon.nav__icon(icon="cog")
+        font-awesome-icon.nav__icon(icon="list-ul" @click="changePage('todolist')")
+        font-awesome-icon.nav__icon(icon="chart-bar" @click="changePage('analytics')")
+        font-awesome-icon.nav__icon(icon="cog" @click="changePage('setting')")
     .main-container
-      .list(v-if="nowPage === 'todolist'")
+      .list(v-if="nowPage === 'todolist' || nowPage === 'analytics' && !isMobileSize")
         .list__container
           CreateToDoItem(:listData="list" :loading="isLoading")
-          ToDoList(:listData="list" :changeItem="changeNowItem" :isMobile="isMobileSize" :page="changePage")
-      .detail(v-if="!isMobileSize || nowPage === 'timer'")
+          ToDoList(:listData="list" :changeItem="changeNowItem")
+      .setting(v-if="nowPage === 'setting'")
+        .setting__container
+          .setting__title Ringtones
+          .setting__subtitle Work
+          label.setting__item(for="work_none")
+            input.setting__radio(type="radio" name="ringtones_work" id="work_none")
+            |None
+          label.setting__item(for="work_music")
+            input.setting__radio(type="radio" name="ringtones_work" id="work_music")
+            |music
+          .setting__subtitle Break
+          label.setting__item(for="break_none")
+            input.setting__radio(type="radio" name="ringtones_break" id="break_none")
+            |None
+          label.setting__item(for="break_music")
+            input.setting__radio(type="radio" name="ringtones_break" id="break_music")
+            |music
+      .detail(v-if="showDetail")
         .detail__container
           Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
           .detail__title {{nowItemInfo.work_title}}
@@ -30,16 +47,28 @@
             .item-button__delete(@click="deleteToDoItem()")
               font-awesome-icon.item-button__delete-icon(icon="trash")
               |Delete
+      .analytics(v-if="nowPage === 'analytics'")
+        .analytics__container
+          .analytics__title Analytics
+          .analytics__result
+            .analytics__today
+              span.analytics__subtitle Today
+              span.analytics__number 02
+            .analytics__week
+              span.analytics__subtitle Week
+              span.analytics__number 10
     .loading(v-if="isLoading")
       .loading-container Loading ...
 </template>
 
 <script>
+import WaveSurfer from 'wavesurfer.js'
+
 import CreateToDoItem from './components/CreateToDoItem.vue'
 import ToDoList from './components/ToDoList.vue'
 import Timer from './components/Timer.vue'
 
-import { testData } from './datas/to-do-list'
+import { testData, musicData } from './datas/to-do-list'
 
 export default {
   name: 'app',
@@ -71,6 +100,22 @@ export default {
         this.changePage('todolist')
       }
     }
+
+    this.$nextTick(() => {
+      this.wavesurfer = WaveSurfer.create({
+        container: '.timer__waveform',
+        waveColor: '#666766',
+        progressColor: '#fcfcfc',
+        barWidth: 2,
+        hideScrollbar: true,
+        scrollParent: true
+        // fillParent: false
+      })
+      this.wavesurfer.load('music/kv-ocean.mp3')
+      this.wavesurfer.on('finish', () => {
+        this.wavesurfer.play(0)
+      })
+    })  
   },
   computed: {
     isMobileSize() {
@@ -82,12 +127,24 @@ export default {
       } else {
         return !this.isTimerStart && this.nowPage === 'todolist'
       }
+    },
+    showDetail() {
+      if (this.isMobileSize) {
+        return this.nowPage === 'timer'
+      } else {
+        return this.nowPage === 'todolist' || this.nowPage === 'setting'
+      }
     }
   },
   methods: {
     changePage(page) {
       this.timerPause()
       this.nowPage = page
+      console.log(this.nowPage)
+      if(page === 'setting') {
+        this.nowItemInfo = musicData[0]
+        this.wavesurfer.load('music/kv-ocean.mp3')
+      }
     },
     login() {
       this.isLoading = true
@@ -122,25 +179,43 @@ export default {
               console.log('list', this.list)
               this.isLoading = false
             })
-            .catch(function(error) {
-              if (error.response) {
-                // 服务器返回正常的异常对象
-                console.log(error.config)
-                this.list = testData
-                this.nowItem = this.list[0].work_id
-                this.nowItemInfo = this.list[0]
-                console.log(this.list)
-              } else {
-                // 服务器发生未处理的异常
-                console.log('Error', error.message)
-              }
+            .catch(error => {
+              this.list = testData
+              this.nowItem = this.list[0].work_id
+              this.nowItemInfo = this.list[0]
+              console.log(this.list)
+              console.log('Error', error.message)
               this.isLoading = false
             })
         })
     },
+    // initialWavesurfer() {   
+    //   this.$nextTick(() => {
+    //     this.wavesurfer = WaveSurfer.create({
+    //       container: '.timer__waveform',
+    //       waveColor: '#666766',
+    //       progressColor: '#fcfcfc',
+    //       barWidth: 2,
+    //       hideScrollbar: true,
+    //       scrollParent: true
+    //       // fillParent: false
+    //     })
+    //     this.wavesurfer.load('music/kv-ocean.mp3')
+    //     this.wavesurfer.on('finish', () => {
+    //       this.wavesurfer.play(0)
+    //     })
+    //   })  
+    // },
     changeNowItem(id) {
       this.nowItem = id
       this.nowItemInfo = this.list.filter(item => item.work_id === id)[0]
+      this.wavesurfer.load('music/kv-ocean.mp3')
+      // console.log()
+      if (this.isMobileSize) {
+        this.changePage('timer')
+      } else {
+        this.changePage('todolist')
+      }
     },
     restartToDoItem() {
       this.list.filter(item => item.work_id === this.nowItem)[0].is_done = false
@@ -188,10 +263,12 @@ export default {
       this.timer = setInterval(() => {
         this.nowItemInfo.remaining_time > 0 ? this.nowItemInfo.remaining_time-- : this.timerPause()
       }, 1000)
+      this.wavesurfer.play()
     },
     timerPause() {
       this.isTimerStart = false
       clearInterval(this.timer)
+      this.wavesurfer.pause()
     },
     timerStepBackward() {
       this.nowItemInfo.remaining_time = 1800
@@ -238,7 +315,8 @@ nav
 .main-container
   display flex
   height 100vh
-.list
+.list,
+.setting
   width 35%
   background-color #e6c65c
   &__container
@@ -249,10 +327,33 @@ nav
     margin 40px 0 10px
     font-size 20px
     font-weight bold
-.detail
+.setting
+  &__title
+    font-size 40px
+    margin-top 20px
+    border-bottom 1px solid #fcfcfc
+    padding-bottom 10px
+  &__subtitle
+    font-size 30px
+    margin 30px 0 10px
+  &__item
+    padding 0.625rem
+    background-color #fcfcfc
+    margin 0.625rem 0
+    border-radius 0.625rem
+    cursor pointer
+    display block
+    font-size 18px
+    width 100%
+    transition width 0.2s ease
+  &__radio
+    margin-right 10px
+.detail,
+.analytics
   width 65%
   background-color #333
   color #fcfcfc
+  position relative
   text-align center
   &__container
     padding 60px
@@ -264,6 +365,22 @@ nav
     margin 30px 0
     font-size 20px
     color #bdbdbd
+.analytics
+  &__title
+    margin-top 40px
+  &__result
+    display flex
+    width 300px
+    margin 20px auto
+    justify-content space-around
+    padding 40px 0
+    border-top 1px solid #eee
+  &__subtitle
+    font-size 20px
+    display block
+  &__number
+    font-size 40px
+    color #e6c65c
 .item-button
   position absolute
   bottom 40px
@@ -331,7 +448,9 @@ nav
     &--timer-page &__list
       color #fcfcfc
   .list,
-  .detail
+  .detail,
+  .setting,
+  .analytics
     width 100%
   .detail
     &__container
