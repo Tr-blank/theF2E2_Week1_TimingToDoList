@@ -68,7 +68,7 @@ import CreateToDoItem from './components/CreateToDoItem.vue'
 import ToDoList from './components/ToDoList.vue'
 import Timer from './components/Timer.vue'
 
-import { testData } from './datas/to-do-list'
+import { testData, musicData } from './datas/to-do-list'
 
 export default {
   name: 'app',
@@ -101,7 +101,21 @@ export default {
       }
     }
 
-    this.initialWavesurfer()
+    this.$nextTick(() => {
+      this.wavesurfer = WaveSurfer.create({
+        container: '.timer__waveform',
+        waveColor: '#666766',
+        progressColor: '#fcfcfc',
+        barWidth: 2,
+        hideScrollbar: true,
+        scrollParent: true
+        // fillParent: false
+      })
+      this.wavesurfer.load('music/kv-ocean.mp3')
+      this.wavesurfer.on('finish', () => {
+        this.wavesurfer.play(0)
+      })
+    })  
   },
   computed: {
     isMobileSize() {
@@ -127,9 +141,14 @@ export default {
       this.timerPause()
       this.nowPage = page
       console.log(this.nowPage)
-      // if(page === 'todolist') {
-      //   this.initialWavesurfer()
-      // }
+      if(page === 'setting') {
+        this.nowItemInfo = musicData[0]
+        this.wavesurfer.load('music/kv-ocean.mp3')
+      } else if (page === 'todolist') {
+        this.nowItemInfo = this.list[0]
+        this.wavesurfer.load('music/kv-ocean.mp3')
+      }
+
     },
     login() {
       this.isLoading = true
@@ -180,23 +199,23 @@ export default {
             })
         })
     },
-    initialWavesurfer() {   
-      this.$nextTick(() => {
-        this.wavesurfer = WaveSurfer.create({
-          container: '.timer__waveform',
-          waveColor: '#666766',
-          progressColor: '#fcfcfc',
-          barWidth: 2,
-          hideScrollbar: true,
-          scrollParent: true
-          // fillParent: false
-        })
-        this.wavesurfer.load('music/kv-ocean.mp3')
-        this.wavesurfer.on('finish', () => {
-          this.wavesurfer.play(0)
-        })
-      })  
-    },
+    // initialWavesurfer() {   
+    //   this.$nextTick(() => {
+    //     this.wavesurfer = WaveSurfer.create({
+    //       container: '.timer__waveform',
+    //       waveColor: '#666766',
+    //       progressColor: '#fcfcfc',
+    //       barWidth: 2,
+    //       hideScrollbar: true,
+    //       scrollParent: true
+    //       // fillParent: false
+    //     })
+    //     this.wavesurfer.load('music/kv-ocean.mp3')
+    //     this.wavesurfer.on('finish', () => {
+    //       this.wavesurfer.play(0)
+    //     })
+    //   })  
+    // },
     changeNowItem(id) {
       this.nowItem = id
       this.nowItemInfo = this.list.filter(item => item.work_id === id)[0]
