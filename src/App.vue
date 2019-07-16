@@ -7,14 +7,31 @@
       div(v-else)
         font-awesome-icon.nav__icon.nav__icon-goBack(icon="angle-left" @click="changePage('todolist')")
       div.nav__list
-        font-awesome-icon.nav__icon(icon="list-ul")
-        font-awesome-icon.nav__icon(icon="chart-bar")
-        font-awesome-icon.nav__icon(icon="cog")
+        font-awesome-icon.nav__icon(icon="list-ul" @click="changePage('todolist')")
+        font-awesome-icon.nav__icon(icon="chart-bar" @click="changePage('analytics')")
+        font-awesome-icon.nav__icon(icon="cog" @click="changePage('setting')")
     .main-container
       .list(v-if="nowPage === 'todolist'")
         .list__container
           CreateToDoItem(:listData="list" :loading="isLoading")
           ToDoList(:listData="list" :changeItem="changeNowItem" :isMobile="isMobileSize" :page="changePage")
+      .setting(v-if="nowPage === 'setting'")
+        .setting__container
+          .setting__title Ringtones
+          .setting__subtitle Work
+          label.setting__item(for="work_none")
+            input.setting__radio(type="radio" name="ringtones_work" id="work_none")
+            |None
+          label.setting__item(for="work_music")
+            input.setting__radio(type="radio" name="ringtones_work" id="work_music")
+            |music
+          .setting__subtitle Break
+          label.setting__item(for="break_none")
+            input.setting__radio(type="radio" name="ringtones_break" id="break_none")
+            |None
+          label.setting__item(for="break_music")
+            input.setting__radio(type="radio" name="ringtones_break" id="break_music")
+            |music
       .detail(v-if="!isMobileSize || nowPage === 'timer'")
         .detail__container
           Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
@@ -35,6 +52,8 @@
 </template>
 
 <script>
+import WaveSurfer from 'wavesurfer.js'
+
 import CreateToDoItem from './components/CreateToDoItem.vue'
 import ToDoList from './components/ToDoList.vue'
 import Timer from './components/Timer.vue'
@@ -71,6 +90,22 @@ export default {
         this.changePage('todolist')
       }
     }
+
+    this.$nextTick(() => {
+      this.wavesurfer = WaveSurfer.create({
+        container: '.timer__waveform',
+        waveColor: '#666766',
+        progressColor: '#fcfcfc',
+        barWidth: 2,
+        hideScrollbar: true,
+        scrollParent: true
+        // fillParent: false
+      })
+      this.wavesurfer.load('music/kv-ocean.mp3')
+      this.wavesurfer.on('finish', () => {
+        this.wavesurfer.play(0)
+      })
+    })
   },
   computed: {
     isMobileSize() {
@@ -88,6 +123,7 @@ export default {
     changePage(page) {
       this.timerPause()
       this.nowPage = page
+      console.log(this.nowPage)
     },
     login() {
       this.isLoading = true
@@ -188,10 +224,12 @@ export default {
       this.timer = setInterval(() => {
         this.nowItemInfo.remaining_time > 0 ? this.nowItemInfo.remaining_time-- : this.timerPause()
       }, 1000)
+      this.wavesurfer.play()
     },
     timerPause() {
       this.isTimerStart = false
       clearInterval(this.timer)
+      this.wavesurfer.pause()
     },
     timerStepBackward() {
       this.nowItemInfo.remaining_time = 1800
@@ -238,7 +276,8 @@ nav
 .main-container
   display flex
   height 100vh
-.list
+.list,
+.setting
   width 35%
   background-color #e6c65c
   &__container
@@ -249,10 +288,31 @@ nav
     margin 40px 0 10px
     font-size 20px
     font-weight bold
+.setting
+  &__title
+    font-size 40px
+    border-bottom 1px solid #fcfcfc
+    padding-bottom 10px
+  &__subtitle
+    font-size 30px
+    margin 30px 0 10px
+  &__item
+    padding 0.625rem
+    background-color #fcfcfc
+    margin 0.625rem 0
+    border-radius 0.625rem
+    cursor pointer
+    display block
+    font-size 18px
+    width 100%
+    transition width 0.2s ease
+  &__radio
+    margin-right 10px
 .detail
   width 65%
   background-color #333
   color #fcfcfc
+  position relative
   text-align center
   &__container
     padding 60px

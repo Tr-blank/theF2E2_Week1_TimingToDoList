@@ -1,7 +1,9 @@
 <template lang="pug">
   div(:class="{ 'timer--start' : isStart, 'timer--rest' : isStart && time > 1500 }")
-    div.timer__container
-      div.timer__progress
+    .timer__waveform-container
+      .timer__waveform
+    .timer__container
+      .timer__progress
         svg.timer__progress-svg(xmlns="http://www.w3.org/2000/svg" viewBox="24 24 48 48")
           circle.timer__progress-circle(
             fill="transparent"
@@ -12,11 +14,11 @@
             :stroke-dasharray="perimeter"
             :stroke-dashoffset="progress"
           )
-      div.timer__content
-        div.timer__control
+      .timer__content
+        .timer__control
           font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!isStart")
           font-awesome-icon.timer__control-icon.timer__control-pause(icon="pause" @click="timerPause()" v-if="isStart")
-    div.timer__time
+    .timer__time
       |{{ showTime }}
       font-awesome-icon.timer__control-step-backward(icon="undo-alt" @click="timerStepBackward()" v-if="!isStart && time != 1800")
 </template>
@@ -64,7 +66,6 @@ export default {
     }
   },
   mounted() {
-    // console.log('listData', this.listData)
   },
   methods: {
     timerStart() {
@@ -91,6 +92,8 @@ export default {
   100%
     transform scale(1.3)
     opacity 0
+wave
+  overflow hidden
 .timer
   &__progress
     height 320px
@@ -121,8 +124,17 @@ export default {
     position relative
     width 300px
     height 300px
+    opacity .9
     transition background-color .35s ease
     background-color #676767
+  &__waveform-container
+    position absolute
+    height 150px
+    width 90%
+    top 204px
+    z-index 0
+    left 5%
+    overflow hidden
   &__content
     position absolute
     top 8px

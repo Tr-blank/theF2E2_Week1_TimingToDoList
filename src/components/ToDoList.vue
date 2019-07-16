@@ -84,7 +84,7 @@ export default {
       // console.log()
       if (this.isMobile) {
         this.page('timer')
-      }else{
+      } else {
         this.page('todolist')
       }
     }

@@ -19,7 +19,8 @@
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
     "vue-gapi": "0.0.10",
-    "vuedraggable": "^2.23.0"
+    "vuedraggable": "^2.23.0",
+    "wavesurfer.js": "^3.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.8.0",
