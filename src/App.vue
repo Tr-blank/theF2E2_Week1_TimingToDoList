@@ -11,7 +11,7 @@
         font-awesome-icon.nav__icon(icon="chart-bar" @click="changePage('analytics')")
         font-awesome-icon.nav__icon(icon="cog" @click="changePage('setting')")
     .main-container
-      .list(v-if="nowPage === 'todolist'")
+      .list(v-if="nowPage === 'todolist' || nowPage === 'analytics'")
         .list__container
           CreateToDoItem(:listData="list" :loading="isLoading")
           ToDoList(:listData="list" :changeItem="changeNowItem" :isMobile="isMobileSize" :page="changePage")
@@ -32,7 +32,7 @@
           label.setting__item(for="break_music")
             input.setting__radio(type="radio" name="ringtones_break" id="break_music")
             |music
-      .detail(v-if="!isMobileSize || nowPage === 'timer'")
+      .detail(v-if="showDetail")
         .detail__container
           Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
           .detail__title {{nowItemInfo.work_title}}
@@ -47,6 +47,16 @@
             .item-button__delete(@click="deleteToDoItem()")
               font-awesome-icon.item-button__delete-icon(icon="trash")
               |Delete
+      .analytics(v-if="nowPage === 'analytics'")
+        .analytics__container
+          .analytics__title Analytics
+          .analytics__result
+            .analytics__today
+              span 02
+              span /Tomato
+            .analytics__week
+              span 10
+              span /Tomato
     .loading(v-if="isLoading")
       .loading-container Loading ...
 </template>
@@ -116,6 +126,13 @@ export default {
         return !this.isTimerStart && this.nowPage === 'timer'
       } else {
         return !this.isTimerStart && this.nowPage === 'todolist'
+      }
+    },
+    showDetail() {
+      if (this.isMobileSize) {
+        return this.nowPage === 'timer'
+      } else {
+        return this.nowPage === 'todolist' || this.nowPage === 'setting'
       }
     }
   },
@@ -391,7 +408,8 @@ nav
     &--timer-page &__list
       color #fcfcfc
   .list,
-  .detail
+  .detail,
+  .setting
     width 100%
   .detail
     &__container
