@@ -1,6 +1,6 @@
 <template lang="pug">
   main(id='app')
-    nav(:class="{ 'nav--timer-page': nowPage === 'timer' && isMobileSize }")
+    nav(:class="{ 'nav--timer-page': nowPage === 'analytics' || nowPage === 'timer' && isMobileSize }")
       div(v-if="nowPage === 'todolist'")
         font-awesome-icon.nav__icon.nav__icon-user(icon="user-circle")
         |user
@@ -11,7 +11,7 @@
         font-awesome-icon.nav__icon(icon="chart-bar" @click="changePage('analytics')")
         font-awesome-icon.nav__icon(icon="cog" @click="changePage('setting')")
     .main-container
-      .list(v-if="nowPage === 'todolist' || nowPage === 'analytics'")
+      .list(v-if="nowPage === 'todolist' || nowPage === 'analytics' && !isMobileSize")
         .list__container
           CreateToDoItem(:listData="list" :loading="isLoading")
           ToDoList(:listData="list" :changeItem="changeNowItem" :isMobile="isMobileSize" :page="changePage")
@@ -52,11 +52,11 @@
           .analytics__title Analytics
           .analytics__result
             .analytics__today
-              span 02
-              span /Tomato
+              span.analytics__subtitle Today
+              span.analytics__number 02
             .analytics__week
-              span 10
-              span /Tomato
+              span.analytics__subtitle Week
+              span.analytics__number 10
     .loading(v-if="isLoading")
       .loading-container Loading ...
 </template>
@@ -101,21 +101,7 @@ export default {
       }
     }
 
-    this.$nextTick(() => {
-      this.wavesurfer = WaveSurfer.create({
-        container: '.timer__waveform',
-        waveColor: '#666766',
-        progressColor: '#fcfcfc',
-        barWidth: 2,
-        hideScrollbar: true,
-        scrollParent: true
-        // fillParent: false
-      })
-      this.wavesurfer.load('music/kv-ocean.mp3')
-      this.wavesurfer.on('finish', () => {
-        this.wavesurfer.play(0)
-      })
-    })
+    this.initialWavesurfer()
   },
   computed: {
     isMobileSize() {
@@ -141,6 +127,9 @@ export default {
       this.timerPause()
       this.nowPage = page
       console.log(this.nowPage)
+      // if(page === 'todolist') {
+      //   this.initialWavesurfer()
+      // }
     },
     login() {
       this.isLoading = true
@@ -190,6 +179,23 @@ export default {
               this.isLoading = false
             })
         })
+    },
+    initialWavesurfer() {   
+      this.$nextTick(() => {
+        this.wavesurfer = WaveSurfer.create({
+          container: '.timer__waveform',
+          waveColor: '#666766',
+          progressColor: '#fcfcfc',
+          barWidth: 2,
+          hideScrollbar: true,
+          scrollParent: true
+          // fillParent: false
+        })
+        this.wavesurfer.load('music/kv-ocean.mp3')
+        this.wavesurfer.on('finish', () => {
+          this.wavesurfer.play(0)
+        })
+      })  
     },
     changeNowItem(id) {
       this.nowItem = id
@@ -308,6 +314,7 @@ nav
 .setting
   &__title
     font-size 40px
+    margin-top 20px
     border-bottom 1px solid #fcfcfc
     padding-bottom 10px
   &__subtitle
@@ -325,7 +332,8 @@ nav
     transition width 0.2s ease
   &__radio
     margin-right 10px
-.detail
+.detail,
+.analytics
   width 65%
   background-color #333
   color #fcfcfc
@@ -341,6 +349,22 @@ nav
     margin 30px 0
     font-size 20px
     color #bdbdbd
+.analytics
+  &__title
+    margin-top 40px
+  &__result
+    display flex
+    width 300px
+    margin 20px auto
+    justify-content space-around
+    padding 40px 0
+    border-top 1px solid #eee
+  &__subtitle
+    font-size 20px
+    display block
+  &__number
+    font-size 40px
+    color #e6c65c
 .item-button
   position absolute
   bottom 40px
@@ -409,7 +433,8 @@ nav
       color #fcfcfc
   .list,
   .detail,
-  .setting
+  .setting,
+  .analytics
     width 100%
   .detail
     &__container
