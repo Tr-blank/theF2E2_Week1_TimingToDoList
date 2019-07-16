@@ -44,7 +44,7 @@ export default {
   methods: {
     createItem() {
       this.loading = true
-      this.inputData.work_id = this.listData.length + 1
+      this.inputData.work_id = Math.random()*1000
       this.inputData.order = this.listData.length + 1
       console.log('create', this.inputData)
       const api = `https://script.google.com/macros/s/AKfycby19dIv0Dq8KeeJQNPxWAAfcBEMZymvcOMNFh5W_5xG4v27hdIs/exec`

@@ -14,7 +14,7 @@
       .list(v-if="nowPage === 'todolist' || nowPage === 'analytics' && !isMobileSize")
         .list__container
           CreateToDoItem(:listData="list" :loading="isLoading")
-          ToDoList(:listData="list" :changeItem="changeNowItem" :isMobile="isMobileSize" :page="changePage")
+          ToDoList(:listData="list" :changeItem="changeNowItem")
       .setting(v-if="nowPage === 'setting'")
         .setting__container
           .setting__title Ringtones
@@ -144,11 +144,7 @@ export default {
       if(page === 'setting') {
         this.nowItemInfo = musicData[0]
         this.wavesurfer.load('music/kv-ocean.mp3')
-      } else if (page === 'todolist') {
-        this.nowItemInfo = this.list[0]
-        this.wavesurfer.load('music/kv-ocean.mp3')
       }
-
     },
     login() {
       this.isLoading = true
@@ -183,18 +179,12 @@ export default {
               console.log('list', this.list)
               this.isLoading = false
             })
-            .catch(function(error) {
-              if (error.response) {
-                // 服务器返回正常的异常对象
-                console.log(error.config)
-                this.list = testData
-                this.nowItem = this.list[0].work_id
-                this.nowItemInfo = this.list[0]
-                console.log(this.list)
-              } else {
-                // 服务器发生未处理的异常
-                console.log('Error', error.message)
-              }
+            .catch(error => {
+              this.list = testData
+              this.nowItem = this.list[0].work_id
+              this.nowItemInfo = this.list[0]
+              console.log(this.list)
+              console.log('Error', error.message)
               this.isLoading = false
             })
         })
@@ -219,6 +209,13 @@ export default {
     changeNowItem(id) {
       this.nowItem = id
       this.nowItemInfo = this.list.filter(item => item.work_id === id)[0]
+      this.wavesurfer.load('music/kv-ocean.mp3')
+      // console.log()
+      if (this.isMobileSize) {
+        this.changePage('timer')
+      } else {
+        this.changePage('todolist')
+      }
     },
     restartToDoItem() {
       this.list.filter(item => item.work_id === this.nowItem)[0].is_done = false

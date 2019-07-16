@@ -56,14 +56,6 @@ export default {
     changeItem: {
       type: Function,
       required: true
-    },
-    isMobile: {
-      type: Boolean,
-      required: true
-    },
-    page: {
-      type: Function,
-      required: true
     }
   },
   created() {
@@ -80,13 +72,6 @@ export default {
     clickItem(index, event) {
       this.nowNumber = index
       this.changeItem(index)
-
-      // console.log()
-      if (this.isMobile) {
-        this.page('timer')
-      } else {
-        this.page('todolist')
-      }
     }
   }
 }
