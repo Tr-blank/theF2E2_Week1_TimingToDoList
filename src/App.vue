@@ -115,7 +115,7 @@ export default {
       this.wavesurfer.on('finish', () => {
         this.wavesurfer.play(0)
       })
-    })  
+    })
   },
   computed: {
     isMobileSize() {
@@ -137,11 +137,18 @@ export default {
     }
   },
   methods: {
+    track() {
+      this.$ga.page({
+        page: '/thef2e2_week1_timing-to-do-list',
+        title: '蕃茄鐘 - 第二屆前端修煉時光屋 第一週',
+        location: window.location.href
+      })
+    },
     changePage(page) {
       this.timerPause()
       this.nowPage = page
       console.log(this.nowPage)
-      if(page === 'setting') {
+      if (page === 'setting') {
         this.nowItemInfo = musicData[0]
         this.wavesurfer.load('music/kv-ocean.mp3')
       }
@@ -189,7 +196,7 @@ export default {
             })
         })
     },
-    // initialWavesurfer() {   
+    // initialWavesurfer() {
     //   this.$nextTick(() => {
     //     this.wavesurfer = WaveSurfer.create({
     //       container: '.timer__waveform',
@@ -204,7 +211,7 @@ export default {
     //     this.wavesurfer.on('finish', () => {
     //       this.wavesurfer.play(0)
     //     })
-    //   })  
+    //   })
     // },
     changeNowItem(id) {
       this.nowItem = id
