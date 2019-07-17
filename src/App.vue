@@ -139,7 +139,7 @@ export default {
   methods: {
     track() {
       this.$ga.page({
-        page: '/',
+        page: '/thef2e2_week1_timing-to-do-list',
         title: '蕃茄鐘 - 第二屆前端修煉時光屋 第一週',
         location: window.location.href
       })

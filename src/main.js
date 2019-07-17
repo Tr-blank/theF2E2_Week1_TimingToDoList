@@ -6,7 +6,7 @@ import { faListUl, faAngleLeft, faCog, faChartBar, faEllipsisV, faPlay, faPlus, 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import VueGAPI from 'vue-gapi'
-import VueAnalytics from 'vue-analytics'
+import ga from 'vue-ga'
 
 library.add(faListUl, faAngleLeft, faCog, faChartBar, faEllipsisV, faPlay, faPlus, faPause, faUndoAlt, faTrash, faCheck, faPowerOff, faUserCircle)
 
@@ -23,10 +23,10 @@ const apiConfig = {
 }
 
 Vue.use(VueGAPI, apiConfig)
-Vue.use(VueAnalytics, {
-  id: 'UA-62416681-1',
-  checkDuplicatedScript: true
-})
+
+ga(collect => {
+  collect(location.pathname + location.hash)
+}, 'UA-62416681-1')
 
 Vue.config.productionTip = false
 
