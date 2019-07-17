@@ -5,6 +5,8 @@
 - pug
 - stylus
 - postcss
+- wavesurfer.js 
+  https://github.com/katspaugh/wavesurfer.js
 - vue-ga
   https://github.com/egoist/vue-ga
 
