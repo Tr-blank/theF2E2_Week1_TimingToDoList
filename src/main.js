@@ -8,10 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import VueGAPI from 'vue-gapi'
 import VueAnalytics from 'vue-analytics'
 
-Vue.use(VueAnalytics, {
-  id: 'UA-62416681-1'
-})
-
 library.add(faListUl, faAngleLeft, faCog, faChartBar, faEllipsisV, faPlay, faPlus, faPause, faUndoAlt, faTrash, faCheck, faPowerOff, faUserCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
@@ -27,6 +23,11 @@ const apiConfig = {
 }
 
 Vue.use(VueGAPI, apiConfig)
+Vue.use(VueAnalytics, {
+  id: 'UA-62416681-1',
+  checkDuplicatedScript: true
+})
+
 Vue.config.productionTip = false
 
 new Vue({
