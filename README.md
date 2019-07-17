@@ -1,6 +1,12 @@
 # thef2e2_week1_timing-to-do-list
 
-vue cli 3、vue、pug、stylus、postcss
+- vue cli 3
+- vue
+- pug
+- stylus
+- postcss
+- vue-ga
+  https://github.com/egoist/vue-ga
 
 ## branch 規範
 - master : 正式版
