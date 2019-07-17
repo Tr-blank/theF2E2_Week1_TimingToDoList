@@ -34,7 +34,7 @@
             |music
       .detail(v-if="showDetail")
         .detail__container
-          Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :pause="timerPause" :stepBackward="timerStepBackward")
+          Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :stop="timerStop" :stepBackward="timerStepBackward")
           .detail__title {{nowItemInfo.work_title}}
           .detail__content {{nowItemInfo.work_content}}
           .item-button(v-if="showItemButton")
@@ -59,6 +59,12 @@
               span.analytics__number 10
     .loading(v-if="isLoading")
       .loading-container Loading ...
+    DialogMessage(
+      :class="{ 'dialog-message--show': dialogMessage.status }"
+      :message="dialogMessage.message"
+      :buttons="dialogMessage.buttons"
+      :resultFunction="dialogMessageResult"
+    )
 </template>
 
 <script>
@@ -67,6 +73,7 @@ import WaveSurfer from 'wavesurfer.js'
 import CreateToDoItem from './components/CreateToDoItem.vue'
 import ToDoList from './components/ToDoList.vue'
 import Timer from './components/Timer.vue'
+import DialogMessage from './components/DialogMessage.vue'
 
 import { testData, musicData } from './datas/to-do-list'
 
@@ -75,7 +82,8 @@ export default {
   components: {
     CreateToDoItem,
     ToDoList,
-    Timer
+    Timer,
+    DialogMessage
   },
   data() {
     return {
@@ -86,7 +94,13 @@ export default {
       nowItemInfo: {},
       timer: null,
       isTimerStart: false,
-      isLoading: false
+      isLoading: false,
+      dialogMessage: {
+        message: '',
+        status: false,
+        buttons: 1,
+        callback: null
+      }
     }
   },
   mounted() {
@@ -137,6 +151,14 @@ export default {
     }
   },
   methods: {
+    showDialogMessage(string, isShow, number, resultFunction) {
+      this.dialogMessage = {
+        message: string,
+        status: isShow,
+        buttons: number,
+        callback: resultFunction
+      }
+    },
     track() {
       this.$ga.page({
         page: '/thef2e2_week1_timing-to-do-list',
@@ -145,7 +167,7 @@ export default {
       })
     },
     changePage(page) {
-      this.timerPause()
+      this.timerStop()
       this.nowPage = page
       console.log(this.nowPage)
       if (page === 'setting') {
@@ -268,17 +290,34 @@ export default {
     timerStart() {
       this.isTimerStart = true
       this.timer = setInterval(() => {
-        this.nowItemInfo.remaining_time > 0 ? this.nowItemInfo.remaining_time-- : this.timerPause()
+        this.nowItemInfo.remaining_time > 0 ? this.nowItemInfo.remaining_time-- : this.timerStop()
       }, 1000)
       this.wavesurfer.play()
     },
-    timerPause() {
-      this.isTimerStart = false
-      clearInterval(this.timer)
-      this.wavesurfer.pause()
+    timerStop() {
+      const callback = () => {
+        this.nowItemInfo.remaining_time = 1800
+        this.isTimerStart = false
+        clearInterval(this.timer)
+        this.wavesurfer.stop()
+        this.showDialogMessage('', false, 1, null)
+      }
+
+      this.showDialogMessage('確定要中斷此次番茄工作計時嗎？', true, 2, callback)
     },
     timerStepBackward() {
-      this.nowItemInfo.remaining_time = 1800
+      const callback = () => {
+        this.showDialogMessage('', false, 1, null)
+      }
+      this.showDialogMessage('確定要中斷此次番茄工作計時嗎？', true, 2, callback)
+    },
+    dialogMessageResult(result) {
+      console.log(result)
+      if (result) {
+        this.dialogMessage.callback()
+      } else {
+        this.showDialogMessage('', false, 1, null)
+      }
     }
   }
 }

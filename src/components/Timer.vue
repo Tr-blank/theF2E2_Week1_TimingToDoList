@@ -17,10 +17,10 @@
       .timer__content
         .timer__control
           font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!isStart")
-          font-awesome-icon.timer__control-icon.timer__control-pause(icon="pause" @click="timerPause()" v-if="isStart")
+          font-awesome-icon.timer__control-icon.timer__control-stop(icon="stop" @click="timerStop()" v-if="isStart")
     .timer__time
       |{{ showTime }}
-      font-awesome-icon.timer__control-step-backward(icon="undo-alt" @click="timerStepBackward()" v-if="!isStart && time != 1800")
+      font-awesome-icon.timer__control-step-backward(icon="sync-alt" @click="timerStepBackward()")
 </template>
 
 <script>
@@ -41,7 +41,7 @@ export default {
     start: {
       type: Function
     },
-    pause: {
+    stop: {
       type: Function
     },
     stepBackward: {
@@ -71,8 +71,8 @@ export default {
     timerStart() {
       this.start()
     },
-    timerPause() {
-      this.pause()
+    timerStop() {
+      this.stop()
     },
     timerStepBackward() {
       this.stepBackward()
@@ -199,7 +199,7 @@ wave
       cursor pointer
     &-play
       padding 10px 0px 10px 20px
-    &-pause
+    &-stop
       padding 10px
     &-step-backward
       font-size 21px
