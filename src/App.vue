@@ -34,7 +34,7 @@
             |music
       .detail(v-if="showDetail")
         .detail__container
-          Timer(:time="nowItemInfo.remaining_time" :isStart="isTimerStart" :start="timerStart" :stop="timerStop" :stepBackward="timerStepBackward")
+          Timer(:time="nowItemInfo.remaining_time" :detail="timerDetail" :start="timerStart" :pause="timerPause" :stop="timerStop" :stepBackward="timerStepBackward")
           .detail__title {{nowItemInfo.work_title}}
           .detail__content {{nowItemInfo.work_content}}
           .item-button(v-if="showItemButton")
@@ -92,8 +92,12 @@ export default {
       list: [],
       nowItem: 0,
       nowItemInfo: {},
-      timer: null,
-      isTimerStart: false,
+      timerDetail: {
+        timer: null,
+        isTimerStart: false,
+        timerStatus: 'rest',
+        startTime: 1500
+      },
       isLoading: false,
       dialogMessage: {
         message: '',
@@ -137,9 +141,9 @@ export default {
     },
     showItemButton() {
       if (this.isMobileSize) {
-        return !this.isTimerStart && this.nowPage === 'timer'
+        return !this.timerDetail.isTimerStart && this.nowPage === 'timer'
       } else {
-        return !this.isTimerStart && this.nowPage === 'todolist'
+        return !this.timerDetail.isTimerStart && this.nowPage === 'todolist'
       }
     },
     showDetail() {
@@ -165,15 +169,6 @@ export default {
         title: '蕃茄鐘 - 第二屆前端修煉時光屋 第一週',
         location: window.location.href
       })
-    },
-    changePage(page) {
-      this.timerStop()
-      this.nowPage = page
-      console.log(this.nowPage)
-      if (page === 'setting') {
-        this.nowItemInfo = musicData[0]
-        this.wavesurfer.load('music/kv-ocean.mp3')
-      }
     },
     login() {
       this.isLoading = true
@@ -210,13 +205,35 @@ export default {
             })
             .catch(error => {
               this.list = testData
-              this.nowItem = this.list[0].work_id
-              this.nowItemInfo = this.list[0]
+              this.nowItem = this.list.filter(item => !item.is_done)[0].work_id
+              this.nowItemInfo = this.list.filter(item => item.work_id === this.nowItem)[0]
               console.log(this.list)
               console.log('Error', error.message)
               this.isLoading = false
             })
         })
+    },
+    changePage(page) {
+      if (this.timerDetail.isTimerStart === true && this.timerDetail.timerStatus === 'rest') {
+        this.timerPause()
+      }
+      if (this.timerDetail.isTimerStart === true && this.timerDetail.timerStatus === 'work') {
+        this.timerStop()
+      }
+      if (this.nowPage === 'setting' && page === 'todolist') {
+        this.nowItem = this.list.filter(item => !item.is_done)[0].work_id
+        this.nowItemInfo = this.list.filter(item => item.work_id === this.nowItem)[0]
+        this.timerDetail.timerStatus = 'rest'
+        this.wavesurfer.load('music/kv-ocean.mp3')
+      }
+      this.nowPage = page
+      console.log(this.nowPage)
+      if (page === 'setting') {
+        this.nowItemInfo = musicData[0]
+        this.wavesurfer.load('music/kv-ocean.mp3')
+        this.timerDetail.timerStatus = 'music'
+        console.log(this.timerDetail.timerStatus)
+      }
     },
     // initialWavesurfer() {
     //   this.$nextTick(() => {
@@ -288,17 +305,30 @@ export default {
         })
     },
     timerStart() {
-      this.isTimerStart = true
-      this.timer = setInterval(() => {
+      this.timerDetail.isTimerStart = true
+      this.timerDetail.timer = setInterval(() => {
         this.nowItemInfo.remaining_time > 0 ? this.nowItemInfo.remaining_time-- : this.timerStop()
+        console.log(this.timerDetail.timerStatus)
+        if (this.nowItemInfo.remaining_time < 1500 && this.timerDetail.timerStatus === 'rest') {
+          this.timerDetail.timerStatus = 'work'
+        }
+        if (this.nowItemInfo.remaining_time < this.timerDetail.startTime - 1500) {
+          this.timerDetail.timerStatus = 'reat'
+        }
       }, 1000)
       this.wavesurfer.play()
+    },
+    timerPause() {
+      this.timerDetail.isTimerStart = false
+      clearInterval(this.timerDetail.timer)
+      this.wavesurfer.pause()
     },
     timerStop() {
       const callback = () => {
         this.nowItemInfo.remaining_time = 1800
-        this.isTimerStart = false
-        clearInterval(this.timer)
+        this.timerDetail.isTimerStart = false
+        this.timerDetail.timerStatus = 'rest'
+        clearInterval(this.timerDetail.timer)
         this.wavesurfer.stop()
         this.showDialogMessage('', false, 1, null)
       }
@@ -306,10 +336,10 @@ export default {
       this.showDialogMessage('確定要中斷此次番茄工作計時嗎？', true, 2, callback)
     },
     timerStepBackward() {
-      const callback = () => {
-        this.showDialogMessage('', false, 1, null)
+      if (this.timerDetail.timerStatus === 'rest') {
+        this.timerDetail.timerStatus = 'work'
+        this.timerDetail.startTime = this.nowItemInfo.remaining_time
       }
-      this.showDialogMessage('確定要中斷此次番茄工作計時嗎？', true, 2, callback)
     },
     dialogMessageResult(result) {
       console.log(result)

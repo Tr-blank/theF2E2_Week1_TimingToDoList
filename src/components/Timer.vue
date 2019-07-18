@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(:class="{ 'timer--start' : isStart, 'timer--rest' : isStart && time > 1500 }")
+  div(:class="{ 'timer--start' : detail.isTimerStart, 'timer--rest' : detail.isTimerStart && detail.timerStatus !== 'work' }")
     .timer__waveform-container
       .timer__waveform
     .timer__container
@@ -16,11 +16,12 @@
           )
       .timer__content
         .timer__control
-          font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!isStart")
-          font-awesome-icon.timer__control-icon.timer__control-stop(icon="stop" @click="timerStop()" v-if="isStart")
+          font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!detail.isTimerStart")
+          font-awesome-icon.timer__control-icon.timer__control-stop(icon="pause" @click="timerPause()" v-if="detail.isTimerStart && detail.timerStatus !== 'work'")
+          font-awesome-icon.timer__control-icon.timer__control-stop(icon="stop" @click="timerStop()" v-if="detail.isTimerStart && detail.timerStatus === 'work'")
     .timer__time
       |{{ showTime }}
-      font-awesome-icon.timer__control-step-backward(icon="sync-alt" @click="timerStepBackward()")
+      font-awesome-icon.timer__control-step-backward(icon="sync-alt" @click="timerStepBackward()" v-if="detail.isTimerStart && detail.timerStatus === 'rest'")
 </template>
 
 <script>
@@ -35,10 +36,13 @@ export default {
     time: {
       type: Number
     },
-    isStart: {
-      type: Boolean
+    detail: {
+      type: Object
     },
     start: {
+      type: Function
+    },
+    pause: {
       type: Function
     },
     stop: {
@@ -70,6 +74,9 @@ export default {
   methods: {
     timerStart() {
       this.start()
+    },
+    timerPause() {
+      this.pause()
     },
     timerStop() {
       this.stop()
