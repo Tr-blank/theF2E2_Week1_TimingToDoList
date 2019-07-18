@@ -1,5 +1,5 @@
 <template lang="pug">
-  div(:class="{ 'timer--start' : isStart, 'timer--rest' : isStart && time > 1500 }")
+  div(:class="{ 'timer--start' : detail.isTimerStart, 'timer--rest' : detail.isTimerStart && detail.timerStatus !== 'work' }")
     .timer__waveform-container
       .timer__waveform
     .timer__container
@@ -16,11 +16,15 @@
           )
       .timer__content
         .timer__control
-          font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!isStart")
-          font-awesome-icon.timer__control-icon.timer__control-pause(icon="pause" @click="timerPause()" v-if="isStart")
+          font-awesome-icon.timer__control-icon.timer__control-play(icon="play" @click="timerStart()" v-if="!detail.isTimerStart")
+          font-awesome-icon.timer__control-icon.timer__control-stop(icon="pause" @click="timerPause()" v-if="detail.isTimerStart && detail.timerStatus !== 'work'")
+          font-awesome-icon.timer__control-icon.timer__control-stop(icon="stop" @click="timerStop()" v-if="detail.isTimerStart && detail.timerStatus === 'work'")
     .timer__time
       |{{ showTime }}
-      font-awesome-icon.timer__control-step-backward(icon="undo-alt" @click="timerStepBackward()" v-if="!isStart && time != 1800")
+      span.timer__button-container
+        font-awesome-icon.timer__control-button(icon="sync-alt" @click="timerStepBackward()" v-if="detail.isTimerStart && detail.timerStatus === 'rest'")
+        font-awesome-icon.timer__control-button(icon="volume-mute" @click="changeVolume(true)" v-if="detail.isTimerStart && !detail.volume")
+        font-awesome-icon.timer__control-button(icon="volume-up" @click="changeVolume(false)" v-if="detail.isTimerStart && detail.volume")
 </template>
 
 <script>
@@ -35,8 +39,8 @@ export default {
     time: {
       type: Number
     },
-    isStart: {
-      type: Boolean
+    detail: {
+      type: Object
     },
     start: {
       type: Function
@@ -44,7 +48,13 @@ export default {
     pause: {
       type: Function
     },
+    stop: {
+      type: Function
+    },
     stepBackward: {
+      type: Function
+    },
+    volumeSwitch: {
       type: Function
     }
   },
@@ -74,8 +84,14 @@ export default {
     timerPause() {
       this.pause()
     },
+    timerStop() {
+      this.stop()
+    },
     timerStepBackward() {
       this.stepBackward()
+    },
+    changeVolume(power) {
+      this.volumeSwitch(power)
     }
   }
 }
@@ -199,13 +215,14 @@ wave
       cursor pointer
     &-play
       padding 10px 0px 10px 20px
-    &-pause
+    &-stop
       padding 10px
-    &-step-backward
+    &-button
       font-size 21px
       margin-left 15px
       color #616161
       cursor pointer
-      position absolute
-      bottom 40px
+  &__button-container
+    position absolute
+    bottom 20px
 </style>
