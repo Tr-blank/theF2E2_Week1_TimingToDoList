@@ -2,8 +2,8 @@
   .dialog-message
     .dialog-message__container
       .dialog-message__title {{message}}
-      button.dialog-message__button.dialog-message__no(@click='clickButton(false)') 取消
-      button.dialog-message__button.dialog-message__yes(@click='clickButton(true)') 確定
+      span.dialog-message__button.dialog-message__no(@click='clickButton(false)') 取消
+      span.dialog-message__button.dialog-message__yes(@click='clickButton(true)') 確定
 </template>
 
 <script>
@@ -69,6 +69,7 @@ export default {
     padding 5px 20px
     border-radius 5px
     cursor pointer
+    display inline-block
   &__yes
     background-color #e6c65c
 </style>
