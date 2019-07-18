@@ -2,13 +2,13 @@ import Vue from 'vue'
 import App from './App.vue'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faListUl, faAngleLeft, faCog, faChartBar, faEllipsisV, faPlay, faPlus, faStop, faPause, faSyncAlt, faTrash, faCheck, faPowerOff, faUserCircle } from '@fortawesome/free-solid-svg-icons'
+import { faListUl, faAngleLeft, faCog, faChartBar, faEllipsisV, faPlay, faPlus, faStop, faPause, faVolumeUp, faVolumeMute, faSyncAlt, faTrash, faCheck, faPowerOff, faUserCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import VueGAPI from 'vue-gapi'
 import ga from 'vue-ga'
 
-library.add(faListUl, faAngleLeft, faCog, faChartBar, faEllipsisV, faPlay, faPlus, faStop, faPause, faSyncAlt, faTrash, faCheck, faPowerOff, faUserCircle)
+library.add(faListUl, faAngleLeft, faCog, faChartBar, faEllipsisV, faPlay, faPlus, faStop, faPause, faVolumeUp, faVolumeMute, faSyncAlt, faTrash, faCheck, faPowerOff, faUserCircle)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

@@ -21,7 +21,10 @@
           font-awesome-icon.timer__control-icon.timer__control-stop(icon="stop" @click="timerStop()" v-if="detail.isTimerStart && detail.timerStatus === 'work'")
     .timer__time
       |{{ showTime }}
-      font-awesome-icon.timer__control-step-backward(icon="sync-alt" @click="timerStepBackward()" v-if="detail.isTimerStart && detail.timerStatus === 'rest'")
+      span.timer__button-container
+        font-awesome-icon.timer__control-button(icon="sync-alt" @click="timerStepBackward()" v-if="detail.isTimerStart && detail.timerStatus === 'rest'")
+        font-awesome-icon.timer__control-button(icon="volume-mute" @click="changeVolume(true)" v-if="detail.isTimerStart && !detail.volume")
+        font-awesome-icon.timer__control-button(icon="volume-up" @click="changeVolume(false)" v-if="detail.isTimerStart && detail.volume")
 </template>
 
 <script>
@@ -49,6 +52,9 @@ export default {
       type: Function
     },
     stepBackward: {
+      type: Function
+    },
+    volumeSwitch: {
       type: Function
     }
   },
@@ -83,6 +89,9 @@ export default {
     },
     timerStepBackward() {
       this.stepBackward()
+    },
+    changeVolume(power) {
+      this.volumeSwitch(power)
     }
   }
 }
@@ -208,11 +217,12 @@ wave
       padding 10px 0px 10px 20px
     &-stop
       padding 10px
-    &-step-backward
+    &-button
       font-size 21px
       margin-left 15px
       color #616161
       cursor pointer
-      position absolute
-      bottom 40px
+  &__button-container
+    position absolute
+    bottom 20px
 </style>

@@ -34,7 +34,15 @@
             |music
       .detail(v-if="showDetail")
         .detail__container
-          Timer(:time="nowItemInfo.remaining_time" :detail="timerDetail" :start="timerStart" :pause="timerPause" :stop="timerStop" :stepBackward="timerStepBackward")
+          Timer(
+            :time="nowItemInfo.remaining_time"
+            :detail="timerDetail"
+            :start="timerStart"
+            :pause="timerPause"
+            :stop="timerStop"
+            :stepBackward="timerStepBackward"
+            :volumeSwitch="volumeSwitch"
+          )
           .detail__title {{nowItemInfo.work_title}}
           .detail__content {{nowItemInfo.work_content}}
           .item-button(v-if="showItemButton")
@@ -96,7 +104,8 @@ export default {
         timer: null,
         isTimerStart: false,
         timerStatus: 'rest',
-        startTime: 1500
+        startTime: 1500,
+        volume: false
       },
       isLoading: false,
       dialogMessage: {
@@ -340,6 +349,11 @@ export default {
         this.timerDetail.timerStatus = 'work'
         this.timerDetail.startTime = this.nowItemInfo.remaining_time
       }
+    },
+    volumeSwitch(power) {
+      console.log(power)
+      this.wavesurfer.setMute(power)
+      this.timerDetail.volume = power
     },
     dialogMessageResult(result) {
       console.log(result)
