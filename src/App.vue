@@ -17,21 +17,21 @@
           ToDoList(:listData="list" :changeItem="changeNowItem")
       .setting(v-if="nowPage === 'setting'")
         .setting__container
-          .setting__title Ringtones
-          .setting__subtitle Work
+          .setting__title Ringtones{{ music.restMusic }}
+          .setting__subtitle Work{{ music.workMusic }}
           label.setting__item(for="work_none")
-            input.setting__radio(type="radio" name="ringtones_work" id="work_none")
+            input.setting__radio(type="radio" name="ringtones_work" id="work_none" v-model="music.restMusic" :value="1" @click="changeRestMusic()")
             |None
           label.setting__item(for="work_music")
-            input.setting__radio(type="radio" name="ringtones_work" id="work_music")
-            |music
+            input.setting__radio(type="radio" name="ringtones_work" id="work_music" v-model="music.restMusic" :value="1" @click="changeRestMusic()")
+            |Ocean by KV
           .setting__subtitle Break
           label.setting__item(for="break_none")
-            input.setting__radio(type="radio" name="ringtones_break" id="break_none")
+            input.setting__radio(type="radio" name="ringtones_break" id="break_none" v-model="music.workMusic" :value="2" @click="changeRestMusic()")
             |None
           label.setting__item(for="break_music")
-            input.setting__radio(type="radio" name="ringtones_break" id="break_music")
-            |music
+            input.setting__radio(type="radio" name="ringtones_break" id="break_music" v-model="music.workMusic" :value="2" @click="changeWorkMusic()")
+            |Oxygen — Scandinavianz
       .detail(v-if="showDetail")
         .detail__container
           Timer(
@@ -113,6 +113,10 @@ export default {
         status: false,
         buttons: 1,
         callback: null
+      },
+      music: {
+        restMusic: 1,
+        workMusic: 2
       }
     }
   },
@@ -223,25 +227,29 @@ export default {
         })
     },
     changePage(page) {
-      if (this.timerDetail.isTimerStart === true && this.timerDetail.timerStatus === 'rest') {
+      const someCode = () => {
+        if (this.nowPage === 'setting' && page === 'todolist') {
+          this.nowItem = this.list.filter(item => !item.is_done)[0].work_id
+          this.nowItemInfo = this.list.filter(item => item.work_id === this.nowItem)[0]
+          this.timerDetail.timerStatus = 'rest'
+          this.wavesurfer.load('music/kv-ocean.mp3')
+          this.wavesurfer.un('ready')
+        }
+        this.nowPage = page
+        if (page === 'setting') {
+          this.nowItemInfo = musicData[0]
+          this.wavesurfer.load('music/kv-ocean.mp3')
+          this.wavesurfer.un('ready')
+          this.timerDetail.timerStatus = 'music'
+        }
+      }
+      if (this.timerDetail.isTimerStart === true && this.timerDetail.timerStatus !== 'work') {
         this.timerPause()
       }
       if (this.timerDetail.isTimerStart === true && this.timerDetail.timerStatus === 'work') {
-        this.timerStop()
-      }
-      if (this.nowPage === 'setting' && page === 'todolist') {
-        this.nowItem = this.list.filter(item => !item.is_done)[0].work_id
-        this.nowItemInfo = this.list.filter(item => item.work_id === this.nowItem)[0]
-        this.timerDetail.timerStatus = 'rest'
-        this.wavesurfer.load('music/kv-ocean.mp3')
-      }
-      this.nowPage = page
-      console.log(this.nowPage)
-      if (page === 'setting') {
-        this.nowItemInfo = musicData[0]
-        this.wavesurfer.load('music/kv-ocean.mp3')
-        this.timerDetail.timerStatus = 'music'
-        console.log(this.timerDetail.timerStatus)
+        this.timerStop(someCode)
+      } else {
+        someCode()
       }
     },
     // initialWavesurfer() {
@@ -262,14 +270,22 @@ export default {
     //   })
     // },
     changeNowItem(id) {
-      this.nowItem = id
-      this.nowItemInfo = this.list.filter(item => item.work_id === id)[0]
-      this.wavesurfer.load('music/kv-ocean.mp3')
-      // console.log()
-      if (this.isMobileSize) {
-        this.changePage('timer')
+      const someCode = () => {
+        this.nowItem = id
+        this.nowItemInfo = this.list.filter(item => item.work_id === id)[0]
+      }
+      if (this.timerDetail.isTimerStart === true && this.timerDetail.timerStatus === 'work') {
+        this.timerStop(someCode)
       } else {
-        this.changePage('todolist')
+        this.timerPause()
+        someCode()
+        this.wavesurfer.load('music/kv-ocean.mp3')
+        this.wavesurfer.un('ready')
+      }
+      if (this.isMobileSize) {
+        this.nowPage = 'timer'
+      } else {
+        this.nowPage = 'todolist'
       }
     },
     restartToDoItem() {
@@ -317,29 +333,39 @@ export default {
       this.timerDetail.isTimerStart = true
       this.timerDetail.timer = setInterval(() => {
         this.nowItemInfo.remaining_time > 0 ? this.nowItemInfo.remaining_time-- : this.timerStop()
-        console.log(this.timerDetail.timerStatus)
         if (this.nowItemInfo.remaining_time < 1500 && this.timerDetail.timerStatus === 'rest') {
           this.timerDetail.timerStatus = 'work'
+          this.wavesurfer.load('music/Oxygen —  Scandinavianz [Audio Library Release].mp3')
         }
-        if (this.nowItemInfo.remaining_time < this.timerDetail.startTime - 1500) {
+        if (this.nowItemInfo.remaining_time < this.timerDetail.startTime - 1500 && this.timerDetail.timerStatus === 'work') {
           this.timerDetail.timerStatus = 'reat'
+          this.wavesurfer.load('music/kv-ocean.mp3')
         }
       }, 1000)
+      this.wavesurfer.on('ready', () => {
+        this.wavesurfer.play()
+      })
       this.wavesurfer.play()
     },
     timerPause() {
       this.timerDetail.isTimerStart = false
       clearInterval(this.timerDetail.timer)
       this.wavesurfer.pause()
+      this.wavesurfer.un('ready')
     },
-    timerStop() {
+    timerStop(otherFunction) {
       const callback = () => {
+        if (otherFunction !== undefined) {
+          otherFunction()
+        }
         this.nowItemInfo.remaining_time = 1800
         this.timerDetail.isTimerStart = false
         this.timerDetail.timerStatus = 'rest'
+        this.wavesurfer.load('music/kv-ocean.mp3')
         clearInterval(this.timerDetail.timer)
         this.wavesurfer.stop()
         this.showDialogMessage('', false, 1, null)
+        this.wavesurfer.un('ready')
       }
 
       this.showDialogMessage('確定要中斷此次番茄工作計時嗎？', true, 2, callback)
@@ -348,20 +374,34 @@ export default {
       if (this.timerDetail.timerStatus === 'rest') {
         this.timerDetail.timerStatus = 'work'
         this.timerDetail.startTime = this.nowItemInfo.remaining_time
+        this.wavesurfer.load('music/Oxygen —  Scandinavianz [Audio Library Release].mp3')
+        this.wavesurfer.on('ready', () => {
+          this.wavesurfer.play()
+        })
       }
     },
     volumeSwitch(power) {
-      console.log(power)
       this.wavesurfer.setMute(power)
       this.timerDetail.volume = power
     },
     dialogMessageResult(result) {
-      console.log(result)
       if (result) {
         this.dialogMessage.callback()
       } else {
         this.showDialogMessage('', false, 1, null)
       }
+    },
+    changeRestMusic() {
+      console.log(this.music.restMusic)
+      this.nowItemInfo = musicData.filter(item => item.music_id === this.music.restMusic)[0]
+      this.wavesurfer.load(this.nowItemInfo.path)
+      this.wavesurfer.un('ready')
+    },
+    changeWorkMusic() {
+      console.log(this.music.workMusic)
+      this.nowItemInfo = musicData.filter(item => item.music_id === this.music.workMusic)[0]
+      this.wavesurfer.load(this.nowItemInfo.path)
+      this.wavesurfer.un('ready')
     }
   }
 }
